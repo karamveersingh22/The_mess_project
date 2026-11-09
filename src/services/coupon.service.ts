@@ -1,6 +1,6 @@
 import { dbConnect } from "@/lib/mongodb";
 import { BookingItem, Coupon, IBooking } from "@/models";
-import { generateCouponCode } from "@/lib/utils";
+import { generateCouponCode, generateVerificationCode } from "@/lib/utils";
 
 export async function generateCouponsForBooking(
   booking: IBooking
@@ -24,9 +24,11 @@ export async function generateCouponsForBooking(
       }
 
       const couponCode = generateCouponCode();
+      const verificationCode = generateVerificationCode();
 
       await Coupon.create({
         couponCode,
+        verificationCode,
         bookingId: booking._id,
         bookingItemId: item._id,
         studentId: booking.studentId,

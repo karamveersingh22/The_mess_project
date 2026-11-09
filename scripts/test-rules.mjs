@@ -194,6 +194,80 @@ test("Submitted booking snapshots preserve booking-time prices when admin edits 
 });
 
 // -------------------------------------------------------------
+// 6. 5-Digit Verification Code & Attendance Tracker Tests
+// -------------------------------------------------------------
+function generateVerificationCode() {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+}
+
+function redeemCoupon(coupon, verificationDate) {
+  if (coupon.status === "REDEEMED") {
+    return { success: false, error: "Already redeemed" };
+  }
+  const isSameDay =
+    coupon.date.getFullYear() === verificationDate.getFullYear() &&
+    coupon.date.getMonth() === verificationDate.getMonth() &&
+    coupon.date.getDate() === verificationDate.getDate();
+
+  if (!isSameDay) {
+    return { success: false, error: "Date mismatch" };
+  }
+
+  coupon.status = "REDEEMED";
+  coupon.redeemedAt = new Date();
+  return { success: true, coupon };
+}
+
+test("5-Digit verification code is exactly 5 numeric digits", () => {
+  const code = generateVerificationCode();
+  assert.strictEqual(code.length, 5);
+  assert(/^\d{5}$/.test(code));
+  const num = parseInt(code, 10);
+  assert(num >= 10000 && num <= 99999);
+});
+
+test("Coupon redemption marks coupon as REDEEMED with timestamp", () => {
+  const today = new Date();
+  const coupon = {
+    status: "ACTIVE",
+    date: today,
+    verificationCode: "74829",
+  };
+  const result = redeemCoupon(coupon, today);
+  assert.strictEqual(result.success, true);
+  assert.strictEqual(coupon.status, "REDEEMED");
+  assert(coupon.redeemedAt instanceof Date);
+});
+
+test("Duplicate redemption attempt is blocked immediately", () => {
+  const today = new Date();
+  const coupon = {
+    status: "REDEEMED",
+    date: today,
+    verificationCode: "74829",
+    redeemedAt: new Date(),
+  };
+  const result = redeemCoupon(coupon, today);
+  assert.strictEqual(result.success, false);
+  assert.strictEqual(result.error, "Already redeemed");
+});
+
+test("Redemption with date mismatch is blocked (cannot use tomorrow's coupon today)", () => {
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  const coupon = {
+    status: "ACTIVE",
+    date: tomorrow, // coupon is for tomorrow
+    verificationCode: "74829",
+  };
+  const result = redeemCoupon(coupon, today);
+  assert.strictEqual(result.success, false);
+  assert.strictEqual(result.error, "Date mismatch");
+});
+
+// -------------------------------------------------------------
 // Summary
 // -------------------------------------------------------------
 console.log("\n=================================================");

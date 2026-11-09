@@ -59,6 +59,13 @@ export function generateCouponCode(): string {
 }
 
 /**
+ * Generate a 5-digit numeric verification code for quick counter attendance
+ */
+export function generateVerificationCode(): string {
+  return Math.floor(10000 + Math.random() * 90000).toString();
+}
+
+/**
  * Get the Monday of the week for a given date
  */
 export function getWeekStart(date: Date): Date {

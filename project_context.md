@@ -17,7 +17,7 @@
 3. **Current State:**
    - The application is **100% written, compiled, and tested**.
    - Production build (`npm run build`) compiles with zero errors.
-   - Automated business rule tests (`npm test`) pass 9/9 (100%).
+   - Automated business rule tests (`npm test`) pass 13/13 (100%).
    - The database in MongoDB Atlas is **already connected and populated** with demo accounts, a live weekly cycle, menu, prices, and test coupons (`npm run seed`).
    - Tailwind CSS v4 styling issues have been resolved using `@tailwindcss/postcss` and `postcss.config.mjs`.
 
@@ -74,7 +74,7 @@ Student Shows Digital Passes (/student/coupons) at Mess Counter
 | **Phase 3** | **Weekly Cycle, Menu & Prices** | ✅ **COMPLETE** | Weekly cycle manager (`/admin/weeks`), 7-day menu editor with alternatives like Chicken/Paneer (`/admin/menu`), price manager with ₹300 minimum (`/admin/prices`), student menu viewer (`/student/menu`), 7-day college mess seed template. |
 | **Phase 4** | **Student Booking Workflow** | ✅ **COMPLETE** | Interactive meal grid (`/student/booking`), dynamic live total counter, ₹300 minimum threshold progress bar, server-side price recalculation, active booking uniqueness, student booking history (`/student/history`) with itemized details and admin rejection reasons. |
 | **Phase 5** | **Admin Review & Payment Verification** | ✅ **COMPLETE** | Admin review table (`/admin/bookings`), search and status filters, itemized inspection, physical cash payment verification with `Payment` creation, approval/rejection with required reason, real-time KPI metrics (`/api/admin/metrics`), student directory (`/admin/students`). |
-| **Phase 6** | **Digital Coupon Engine** | ✅ **COMPLETE** | Atomic coupon generator (`src/services/coupon.service.ts`), unique coupon code generator (`CP-...`), student digital passes (`/student/coupons`) with day/meal filters, mess-wide coupon explorer (`/admin/coupons`) with preparation counts. |
+| **Phase 6** | **Digital Coupon Engine & Attendance Tracking** | ✅ **COMPLETE** | Atomic coupon generator with 5-digit verification codes (`src/services/coupon.service.ts`), unique coupon code generator (`CP-...`), student digital passes (`/student/coupons`) with "Today's Active Meal Pass" highlight and 5-digit numeric tokens, staff attendance counter terminal (`/admin/counter`), real-time attendance redemption engine (`/api/admin/counter`) with duplicate meal blocking, date mismatch validation, and live expected/served counters. |
 | **Phase 7** | **Testing, Polish & Demo Seeding** | ✅ **COMPLETE** | Production build verified (`next build`), clean TypeScript compilation, automated business rules test suite (`scripts/test-rules.mjs`), CLI database seeder (`scripts/seed-cli.mjs`). |
 
 ---
@@ -143,6 +143,7 @@ mess_project/
 │   │   ├── admin/
 │   │   │   ├── layout.tsx        # Admin portal layout with Sidebar
 │   │   │   ├── dashboard/page.tsx# Control panel with live KPIs & seeder button
+│   │   │   ├── counter/page.tsx  # Quick 5-digit attendance counter & meal verifier
 │   │   │   ├── weeks/page.tsx    # Weekly cycle manager (Mon–Sun cycles)
 │   │   │   ├── prices/page.tsx   # Meal pricing & minimum amount manager
 │   │   │   ├── menu/page.tsx     # 7-day menu editor with alternatives

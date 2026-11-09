@@ -5,6 +5,7 @@ import { Sidebar, MobileNav } from "@/components/shared/Sidebar";
 
 const adminLinks = [
   { href: "/admin/dashboard", label: "Dashboard", icon: "📊" },
+  { href: "/admin/counter", label: "Attendance Counter", icon: "⚡" },
   { href: "/admin/weeks", label: "Weekly Cycles", icon: "📅" },
   { href: "/admin/menu", label: "Menu Editor", icon: "🍽️" },
   { href: "/admin/prices", label: "Prices & Minimum", icon: "💰" },

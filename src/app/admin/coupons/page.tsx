@@ -14,6 +14,7 @@ interface StudentInfo {
 interface CouponRecord {
   _id: string;
   couponCode: string;
+  verificationCode?: string;
   date: string;
   mealType: "BREAKFAST" | "LUNCH" | "DINNER";
   mealDescriptionSnapshot: string;
@@ -177,6 +178,7 @@ export default function AdminCouponsPage() {
               <table className="w-full text-left text-sm text-gray-600">
                 <thead className="bg-gray-50 text-xs uppercase text-gray-700 border-b">
                   <tr>
+                    <th className="px-6 py-3">5-Digit Code</th>
                     <th className="px-6 py-3">Coupon Code</th>
                     <th className="px-6 py-3">Student</th>
                     <th className="px-6 py-3">Meal Type</th>
@@ -188,6 +190,9 @@ export default function AdminCouponsPage() {
                 <tbody className="divide-y divide-gray-100">
                   {coupons.map((c) => (
                     <tr key={c._id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 font-mono font-black text-sm text-amber-900 bg-amber-50/50">
+                        {c.verificationCode || "—"}
+                      </td>
                       <td className="px-6 py-4 font-mono font-bold text-xs text-blue-950">
                         {c.couponCode}
                       </td>

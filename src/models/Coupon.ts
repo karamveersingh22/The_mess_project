@@ -5,6 +5,7 @@ export type CouponStatus = "ACTIVE" | "REDEEMED" | "CANCELLED";
 export interface ICoupon extends Document {
   _id: mongoose.Types.ObjectId;
   couponCode: string;
+  verificationCode: string; // 5-digit code for quick physical counter attendance
   bookingId: mongoose.Types.ObjectId;
   bookingItemId: mongoose.Types.ObjectId;
   studentId: mongoose.Types.ObjectId;
@@ -14,6 +15,8 @@ export interface ICoupon extends Document {
   mealDescriptionSnapshot: string;
   status: CouponStatus;
   generatedAt: Date;
+  redeemedAt?: Date;
+  redeemedBy?: mongoose.Types.ObjectId;
 }
 
 const CouponSchema = new Schema<ICoupon>(
@@ -22,6 +25,11 @@ const CouponSchema = new Schema<ICoupon>(
       type: String,
       required: true,
       unique: true,
+    },
+    verificationCode: {
+      type: String,
+      required: true,
+      index: true,
     },
     bookingId: {
       type: Schema.Types.ObjectId,
@@ -66,6 +74,13 @@ const CouponSchema = new Schema<ICoupon>(
     generatedAt: {
       type: Date,
       default: Date.now,
+    },
+    redeemedAt: {
+      type: Date,
+    },
+    redeemedBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
   },
   {

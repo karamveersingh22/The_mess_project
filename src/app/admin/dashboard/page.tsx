@@ -78,13 +78,18 @@ export default function AdminDashboardPage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
+            <Link href="/admin/counter">
+              <Button size="md" className="bg-amber-400 hover:bg-amber-500 text-gray-950 font-bold shadow">
+                ⚡ Attendance Counter
+              </Button>
+            </Link>
             <Button
               variant="secondary"
               size="md"
               onClick={handleSeedDemoData}
               isLoading={seeding}
             >
-              ⚡ Quick-Seed Demo Data
+              Quick-Seed Demo
             </Button>
             <Link href="/admin/bookings">
               <Button variant="success" size="md">

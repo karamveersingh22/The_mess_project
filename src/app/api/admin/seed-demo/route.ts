@@ -12,7 +12,7 @@ import {
 } from "@/models";
 import { hashPassword } from "@/lib/auth";
 import { DEFAULT_MESS_MENU } from "@/lib/constants/menu";
-import { getWeekStart, getWeekEnd, generateBookingCode, generateCouponCode } from "@/lib/utils";
+import { getWeekStart, getWeekEnd, generateBookingCode, generateCouponCode, generateVerificationCode } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
@@ -231,6 +231,7 @@ export async function POST() {
 
         await Coupon.create({
           couponCode: generateCouponCode(),
+          verificationCode: generateVerificationCode(),
           bookingId: approvedBooking._id,
           bookingItemId: item._id,
           studentId: demoStudent._id,
