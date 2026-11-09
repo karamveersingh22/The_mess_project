@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/auth";
 import { Coupon } from "@/models";
 import { dbConnect } from "@/lib/mongodb";
+import { getDayBoundsInAppTZ, isSameDayInAppTZ, formatDate, APP_TIMEZONE } from "@/lib/utils";
 import mongoose from "mongoose";
 
 export const dynamic = "force-dynamic";
@@ -24,12 +25,9 @@ export async function GET(req: NextRequest) {
 
     await dbConnect();
 
-    // Today's date range (midnight to 23:59:59)
+    // Today's date range in Indian Standard Time (IST)
     const today = new Date();
-    const startOfToday = new Date(today);
-    startOfToday.setHours(0, 0, 0, 0);
-    const endOfToday = new Date(today);
-    endOfToday.setHours(23, 59, 59, 999);
+    const { start: startOfToday, end: endOfToday } = getDayBoundsInAppTZ(today);
 
     const baseQuery: Record<string, unknown> = {
       date: { $gte: startOfToday, $lte: endOfToday },
@@ -119,6 +117,7 @@ export async function POST(req: NextRequest) {
     if (coupon.status === "REDEEMED") {
       const redeemedTime = coupon.redeemedAt
         ? new Date(coupon.redeemedAt).toLocaleTimeString("en-IN", {
+            timeZone: APP_TIMEZONE,
             hour: "2-digit",
             minute: "2-digit",
           })
@@ -148,25 +147,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // 3. Date check: Ensure coupon matches today's date
+    // 3. Date check: Ensure coupon matches today's date in Indian Standard Time (IST)
     const today = new Date();
-    const couponDate = new Date(coupon.date);
-
-    const isSameDate =
-      today.getFullYear() === couponDate.getFullYear() &&
-      today.getMonth() === couponDate.getMonth() &&
-      today.getDate() === couponDate.getDate();
+    const isSameDate = isSameDayInAppTZ(coupon.date, today);
 
     if (!isSameDate) {
-      const dateFormatted = couponDate.toLocaleDateString("en-IN", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      });
+      const scheduledDateFormatted = formatDate(coupon.date);
+      const todayFormatted = formatDate(today);
       return NextResponse.json(
         {
           success: false,
-          error: `Date Mismatch! This ${coupon.mealType} coupon is scheduled for ${dateFormatted}, not today.`,
+          error: `Date Mismatch! This ${coupon.mealType} coupon is scheduled for ${scheduledDateFormatted}, not today (${todayFormatted}).`,
         },
         { status: 400 }
       );

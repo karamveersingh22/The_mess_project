@@ -200,14 +200,20 @@ function generateVerificationCode() {
   return Math.floor(10000 + Math.random() * 90000).toString();
 }
 
+function getDateStringInAppTZ(date) {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-CA", { timeZone: "Asia/Kolkata" });
+}
+
+function isSameDayInAppTZ(d1, d2) {
+  return getDateStringInAppTZ(d1) === getDateStringInAppTZ(d2);
+}
+
 function redeemCoupon(coupon, verificationDate) {
   if (coupon.status === "REDEEMED") {
     return { success: false, error: "Already redeemed" };
   }
-  const isSameDay =
-    coupon.date.getFullYear() === verificationDate.getFullYear() &&
-    coupon.date.getMonth() === verificationDate.getMonth() &&
-    coupon.date.getDate() === verificationDate.getDate();
+  const isSameDay = isSameDayInAppTZ(coupon.date, verificationDate);
 
   if (!isSameDay) {
     return { success: false, error: "Date mismatch" };

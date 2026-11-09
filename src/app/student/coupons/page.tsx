@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge, getStatusVariant } from "@/components/ui/Badge";
-import { formatDate } from "@/lib/utils";
+import { formatDate, isSameDayInAppTZ } from "@/lib/utils";
 
 interface CouponItem {
   _id: string;
@@ -51,10 +51,7 @@ export default function StudentCouponsPage() {
     loadCoupons();
   }, []);
 
-  const todayStr = new Date().toDateString();
-  const todayCoupons = coupons.filter(
-    (c) => new Date(c.date).toDateString() === todayStr
-  );
+  const todayCoupons = coupons.filter((c) => isSameDayInAppTZ(c.date));
 
   const filteredCoupons = coupons.filter((c) => {
     if (selectedFilter === "ALL") return true;

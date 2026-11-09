@@ -195,7 +195,7 @@ export default function AdminCounterPage() {
             </span>
           </div>
           <span className="text-xs bg-blue-800 text-blue-200 px-3 py-1 rounded-full font-mono">
-            {new Date().toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short" })}
+            {new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short" })}
           </span>
         </div>
 

@@ -8,6 +8,8 @@ export function cn(...inputs: ClassValue[]): string {
   return clsx(inputs);
 }
 
+export const APP_TIMEZONE = "Asia/Kolkata";
+
 /**
  * Format currency in Indian Rupees
  */
@@ -16,11 +18,12 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
- * Format a date to a readable string
+ * Format a date to a readable string in Indian Standard Time (IST)
  */
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
   return d.toLocaleDateString("en-IN", {
+    timeZone: APP_TIMEZONE,
     weekday: "short",
     year: "numeric",
     month: "short",
@@ -29,15 +32,47 @@ export function formatDate(date: Date | string): string {
 }
 
 /**
- * Format a date to show day and date only
+ * Format a date to show day and date only in Indian Standard Time (IST)
  */
 export function formatShortDate(date: Date | string): string {
   const d = new Date(date);
   return d.toLocaleDateString("en-IN", {
+    timeZone: APP_TIMEZONE,
     weekday: "long",
     month: "short",
     day: "numeric",
   });
+}
+
+/**
+ * Returns YYYY-MM-DD string in the application timezone (Asia/Kolkata)
+ */
+export function getDateStringInAppTZ(date: Date | string = new Date()): string {
+  const d = new Date(date);
+  return d.toLocaleDateString("en-CA", { timeZone: APP_TIMEZONE });
+}
+
+/**
+ * Checks if two dates represent the exact same calendar day in Indian Standard Time
+ */
+export function isSameDayInAppTZ(
+  date1: Date | string,
+  date2: Date | string = new Date()
+): boolean {
+  return getDateStringInAppTZ(date1) === getDateStringInAppTZ(date2);
+}
+
+/**
+ * Get the UTC Date bounds (start and end) for a given calendar day in Indian Standard Time
+ */
+export function getDayBoundsInAppTZ(date: Date | string = new Date()): {
+  start: Date;
+  end: Date;
+} {
+  const dateStr = getDateStringInAppTZ(date); // e.g. "2026-11-09"
+  const start = new Date(`${dateStr}T00:00:00.000+05:30`);
+  const end = new Date(`${dateStr}T23:59:59.999+05:30`);
+  return { start, end };
 }
 
 /**
