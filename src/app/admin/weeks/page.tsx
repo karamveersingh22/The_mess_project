@@ -81,7 +81,6 @@ export default function AdminWeeksPage() {
 
       setSuccessMsg("Weekly cycle, prices, and default menu initialized successfully!");
       setShowCreateModal(false);
-      // Reset form
       setStartDate("");
       setEndDate("");
       setBookingStart("");
@@ -116,78 +115,107 @@ export default function AdminWeeksPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Weekly Booking Cycles</h1>
-          <p className="text-sm text-gray-600">
-            Create and manage Monday–Sunday meal cycles and open/close student booking windows.
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🗓️</span>
+            <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              Weekly Booking Cycles
+            </h1>
+          </div>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Schedule and control Monday–Sunday operational cycles, booking windows, and automated menu generation.
           </p>
         </div>
-        <Button onClick={() => setShowCreateModal(true)}>
-          + Create New Week Cycle
+        <Button onClick={() => setShowCreateModal(true)} className="font-bold">
+          + Create New Cycle
         </Button>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          {error}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
+          ✕ {error}
         </div>
       )}
 
       {successMsg && (
-        <div className="rounded-lg bg-green-50 p-4 text-sm text-green-700 border border-green-200">
-          {successMsg}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-text)' }}
+        >
+          ✓ {successMsg}
         </div>
       )}
 
       {/* Weeks Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Configured Weekly Cycles</CardTitle>
+          <CardTitle>Configured Operating Cycles ({weeks.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-8 text-center text-gray-500">Loading weekly cycles...</div>
+            <div className="p-12 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+              Loading weekly cycles...
+            </div>
           ) : weeks.length === 0 ? (
-            <div className="p-8 text-center text-gray-500">
-              No weekly cycles created yet. Click &quot;Create New Week Cycle&quot; to begin.
+            <div className="p-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              No weekly cycles created yet. Click &quot;+ Create New Cycle&quot; to begin.
             </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-600">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700 border-b">
+              <table className="w-full text-left text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <thead
+                  className="text-xs uppercase font-bold"
+                  style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-muted)' }}
+                >
                   <tr>
-                    <th className="px-6 py-3">Week Dates (Mon–Sun)</th>
-                    <th className="px-6 py-3">Booking Window</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Actions</th>
+                    <th className="px-6 py-3.5">Operating Dates (Mon–Sun)</th>
+                    <th className="px-6 py-3.5">Booking Window</th>
+                    <th className="px-6 py-3.5">Status</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y" style={{ borderColor: 'var(--border-muted)' }}>
                   {weeks.map((w) => (
-                    <tr key={w._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 font-medium text-gray-900">
+                    <tr
+                      key={w._id}
+                      className="transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    >
+                      <td className="px-6 py-4 font-bold" style={{ color: 'var(--text-primary)' }}>
                         {formatDate(w.startDate)} – {formatDate(w.endDate)}
                       </td>
                       <td className="px-6 py-4 text-xs">
-                        <div><span className="text-gray-400">Open:</span> {new Date(w.bookingStart).toLocaleString()}</div>
-                        <div><span className="text-gray-400">Close:</span> {new Date(w.bookingEnd).toLocaleString()}</div>
+                        <div>
+                          <span style={{ color: 'var(--text-muted)' }}>Opens: </span>
+                          <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>
+                            {new Date(w.bookingStart).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+                          </span>
+                        </div>
+                        <div>
+                          <span style={{ color: 'var(--text-muted)' }}>Closes: </span>
+                          <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>
+                            {new Date(w.bookingEnd).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}
+                          </span>
+                        </div>
                       </td>
                       <td className="px-6 py-4">
                         <Badge variant={getStatusVariant(w.status)}>
                           {w.status}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-2">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
                           {w.status !== "OPEN" && (
                             <Button
                               size="sm"
                               variant="success"
                               onClick={() => handleStatusChange(w._id, "OPEN")}
                             >
-                              Open Bookings
+                              Open
                             </Button>
                           )}
                           {w.status !== "CLOSED" && (
@@ -212,9 +240,12 @@ export default function AdminWeeksPage() {
 
       {/* Create Week Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-xl">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ background: 'rgba(0,0,0,0.65)' }}>
+          <div
+            className="w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+          >
+            <h2 className="text-lg font-black mb-4" style={{ color: 'var(--text-primary)' }}>
               Create Weekly Booking Cycle
             </h2>
             <form onSubmit={handleCreateWeek} className="space-y-4">
@@ -247,13 +278,18 @@ export default function AdminWeeksPage() {
                 required
               />
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-xs font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--text-muted)' }}>
                   Initial Status
                 </label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as WeekItem["status"])}
-                  className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                  className="w-full rounded-lg px-3 py-2.5 text-xs font-bold outline-none transition-colors"
+                  style={{
+                    background: 'var(--bg-elevated)',
+                    border: '1px solid var(--border-default)',
+                    color: 'var(--text-primary)'
+                  }}
                 >
                   <option value="OPEN">OPEN (Students can book now)</option>
                   <option value="UPCOMING">UPCOMING (Not yet open)</option>
@@ -261,7 +297,7 @@ export default function AdminWeeksPage() {
                 </select>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-6 flex justify-end gap-2 pt-2">
                 <Button
                   type="button"
                   variant="secondary"
@@ -270,7 +306,7 @@ export default function AdminWeeksPage() {
                   Cancel
                 </Button>
                 <Button type="submit" isLoading={submitting}>
-                  Initialize Week
+                  Initialize Cycle
                 </Button>
               </div>
             </form>
@@ -280,4 +316,3 @@ export default function AdminWeeksPage() {
     </div>
   );
 }
-

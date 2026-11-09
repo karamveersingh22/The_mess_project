@@ -59,25 +59,34 @@ export default function StudentCouponsPage() {
   });
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto pb-12">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Digital Meal Pass & Attendance Codes</h1>
-          <p className="text-sm text-gray-600">
-            Tell the <strong className="text-blue-900">5-digit code</strong> to the mess staff at the counter to mark your attendance and collect your meal.
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">🎫</span>
+            <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              Digital Passes & Attendance Codes
+            </h1>
+          </div>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Tell your <strong style={{ color: 'var(--brand-blue)' }}>5-digit code</strong> to the mess staff at the counter to verify your meal.
           </p>
         </div>
-        <div className="flex items-center gap-2">
+
+        {/* Filter Pills */}
+        <div className="flex items-center gap-1.5 p-1 rounded-xl" style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}>
           {["ALL", "BREAKFAST", "LUNCH", "DINNER"].map((filter) => (
             <button
               key={filter}
               onClick={() => setSelectedFilter(filter)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-colors ${
-                selectedFilter === filter
-                  ? "bg-blue-900 text-white"
-                  : "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50"
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={selectedFilter === filter ? {
+                background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                color: '#FFFFFF',
+              } : {
+                color: 'var(--text-secondary)',
+              }}
             >
               {filter}
             </button>
@@ -86,23 +95,37 @@ export default function StudentCouponsPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div
+          className="p-4 rounded-xl text-sm font-medium"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
           {error}
         </div>
       )}
 
       {/* TODAY'S ACTIVE MEAL PASS HIGHLIGHT BANNER */}
       {!loading && todayCoupons.length > 0 && (
-        <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-blue-950 text-white rounded-2xl p-6 shadow-lg border border-blue-800">
-          <div className="flex items-center justify-between mb-4 pb-3 border-b border-blue-800/80">
-            <div className="flex items-center gap-2">
-              <span className="text-2xl">⚡</span>
+        <div
+          className="rounded-2xl p-6 sm:p-7 shadow-xl relative overflow-hidden"
+          style={{
+            background: 'linear-gradient(135deg, #0D1E4C 0%, #26415E 70%, #0B1B32 100%)',
+            border: '1.5px solid #83A6CE44',
+          }}
+        >
+          <div className="flex items-center justify-between mb-5 pb-3 border-b border-white/10">
+            <div className="flex items-center gap-2.5">
+              <span className="text-2xl animate-pulse">⚡</span>
               <div>
-                <h2 className="text-lg font-bold">Today&apos;s Active Meal Passes</h2>
-                <p className="text-xs text-blue-200">{new Date().toLocaleDateString("en-IN", { weekday: "long", month: "short", day: "numeric", year: "numeric" })}</p>
+                <h2 className="text-lg font-black text-white">Today&apos;s Active Meal Passes</h2>
+                <p className="text-xs" style={{ color: '#83A6CE' }}>
+                  {new Date().toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata", weekday: "long", month: "short", day: "numeric", year: "numeric" })}
+                </p>
               </div>
             </div>
-            <span className="bg-yellow-400 text-yellow-950 font-bold text-xs px-3 py-1 rounded-full uppercase tracking-wider animate-pulse">
+            <span
+              className="px-3 py-1 rounded-full text-[11px] font-black uppercase tracking-wider text-black shadow-sm"
+              style={{ background: '#E5C9D7' }}
+            >
               Live For Today
             </span>
           </div>
@@ -111,47 +134,79 @@ export default function StudentCouponsPage() {
             {todayCoupons.map((c) => (
               <div
                 key={c._id}
-                className={`rounded-xl p-4 border transition-all ${
-                  c.status === "REDEEMED"
-                    ? "bg-blue-950/60 border-blue-800 opacity-80"
-                    : "bg-white text-gray-900 border-white shadow-md ring-2 ring-yellow-400"
-                }`}
+                className="rounded-2xl p-4 transition-all flex flex-col justify-between"
+                style={c.status === "REDEEMED" ? {
+                  background: 'rgba(11, 27, 50, 0.6)',
+                  border: '1px solid rgba(131, 166, 206, 0.2)',
+                  opacity: 0.8,
+                } : {
+                  background: 'var(--bg-surface)',
+                  border: '2px solid #83A6CE',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.25)',
+                }}
               >
-                <div className="flex items-center justify-between mb-2">
-                  <span className={`text-xs font-bold px-2 py-0.5 rounded ${
-                    c.status === "REDEEMED" ? "bg-gray-800 text-gray-300" : "bg-blue-100 text-blue-900"
-                  }`}>
-                    {c.mealType}
-                  </span>
-                  <Badge variant={getStatusVariant(c.status)}>
-                    {c.status === "REDEEMED" ? "USED" : "READY TO EAT"}
-                  </Badge>
-                </div>
-
-                <div className="text-center my-3 py-2 bg-gray-50 rounded-lg border border-dashed border-gray-300">
-                  <span className="text-[11px] uppercase tracking-wider font-semibold text-gray-500 block mb-1">
-                    5-Digit Counter Code
-                  </span>
-                  <div className="font-mono text-3xl font-black tracking-widest text-blue-950">
-                    {c.verificationCode || "N/A"}
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span
+                      className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md"
+                      style={c.status === "REDEEMED"
+                        ? { background: 'rgba(255,255,255,0.1)', color: '#FFFFFF' }
+                        : { background: '#83A6CE22', color: 'var(--brand-navy)' }
+                      }
+                    >
+                      {c.mealType}
+                    </span>
+                    <Badge variant={getStatusVariant(c.status)}>
+                      {c.status === "REDEEMED" ? "USED" : "READY TO EAT"}
+                    </Badge>
                   </div>
+
+                  {/* 5-Digit Counter Code Showcase */}
+                  <div
+                    className="text-center my-3 py-3 rounded-xl border border-dashed transition-all"
+                    style={{
+                      background: c.status === "REDEEMED" ? 'rgba(0,0,0,0.2)' : 'var(--bg-elevated)',
+                      borderColor: c.status === "REDEEMED" ? 'rgba(255,255,255,0.15)' : 'var(--border-default)',
+                    }}
+                  >
+                    <span
+                      className="text-[10px] uppercase font-bold tracking-wider block mb-1"
+                      style={{ color: c.status === "REDEEMED" ? '#83A6CE' : 'var(--text-muted)' }}
+                    >
+                      5-Digit Counter Code
+                    </span>
+                    <div
+                      className="font-mono text-3xl font-black tracking-[0.25em]"
+                      style={{ color: c.status === "REDEEMED" ? '#FFFFFF' : 'var(--brand-navy)' }}
+                    >
+                      {c.verificationCode || "N/A"}
+                    </div>
+                  </div>
+
+                  <p
+                    className="text-xs line-clamp-2"
+                    style={{ color: c.status === "REDEEMED" ? '#83A6CE' : 'var(--text-secondary)' }}
+                  >
+                    {c.mealDescriptionSnapshot}
+                  </p>
                 </div>
 
-                <p className={`text-xs line-clamp-2 ${c.status === "REDEEMED" ? "text-blue-200" : "text-gray-600"}`}>
-                  {c.mealDescriptionSnapshot}
-                </p>
-
-                <div className="mt-3 pt-2 border-t border-gray-100 flex items-center justify-between text-[11px]">
+                <div
+                  className="mt-4 pt-3 border-t flex items-center justify-between text-[11px]"
+                  style={{ borderColor: c.status === "REDEEMED" ? 'rgba(255,255,255,0.1)' : 'var(--border-muted)' }}
+                >
                   {c.status === "REDEEMED" ? (
-                    <span className="text-green-400 font-medium">
-                      ✓ Redeemed {c.redeemedAt ? new Date(c.redeemedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : "Today"}
+                    <span className="text-emerald-400 font-bold">
+                      ✓ Redeemed {c.redeemedAt ? new Date(c.redeemedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) : "Today"}
                     </span>
                   ) : (
-                    <span className="text-blue-700 font-semibold">
-                      👉 Tell this code at counter
+                    <span className="font-bold flex items-center gap-1" style={{ color: 'var(--brand-blue)' }}>
+                      <span>👉</span> Tell at counter
                     </span>
                   )}
-                  <span className="text-gray-400 font-mono text-[10px]">{c.couponCode.substring(0, 10)}...</span>
+                  <span className="font-mono text-[10px] opacity-60">
+                    {c.couponCode.substring(0, 10)}...
+                  </span>
                 </div>
               </div>
             ))}
@@ -161,14 +216,18 @@ export default function StudentCouponsPage() {
 
       {/* Main List */}
       {loading ? (
-        <div className="p-12 text-center text-gray-500">Loading your coupons...</div>
+        <div className="p-16 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+          Loading your coupons...
+        </div>
       ) : coupons.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center text-gray-500 space-y-3">
-            <div className="text-4xl">🎫</div>
-            <h3 className="text-lg font-bold text-gray-800">No Digital Coupons Yet</h3>
-            <p className="text-sm max-w-md mx-auto text-gray-600">
-              Coupons are automatically issued as soon as the mess admin verifies your physical payment and approves your booking request.
+          <CardContent className="p-16 text-center space-y-4">
+            <div className="text-5xl">🎫</div>
+            <h3 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>
+              No Digital Coupons Yet
+            </h3>
+            <p className="text-xs max-w-md mx-auto" style={{ color: 'var(--text-secondary)' }}>
+              Coupons with attendance verification codes will be automatically generated once the mess admin approves your physical payment.
             </p>
             <div className="pt-2 flex justify-center gap-3">
               <Link href="/student/booking">
@@ -183,20 +242,32 @@ export default function StudentCouponsPage() {
           </CardContent>
         </Card>
       ) : (
-        <div>
-          <h2 className="text-base font-bold text-gray-800 mb-4">All Weekly Coupons</h2>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-black" style={{ color: 'var(--text-primary)' }}>
+              All Passes ({filteredCoupons.length})
+            </h2>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+              Tap any pass for details
+            </span>
+          </div>
+
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {filteredCoupons.map((c) => (
               <div
                 key={c._id}
-                className="rounded-2xl border-2 border-blue-900/20 bg-white p-5 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden flex flex-col justify-between"
+                className="rounded-2xl transition-all flex flex-col justify-between overflow-hidden shadow-sm"
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-default)',
+                }}
               >
-                {/* Header */}
-                <div>
-                  <div className="flex items-center justify-between border-b pb-3 mb-3">
+                {/* Pass Header */}
+                <div className="p-5">
+                  <div className="flex items-center justify-between pb-3 mb-3 border-b" style={{ borderColor: 'var(--border-muted)' }}>
                     <div className="flex items-center gap-2">
-                      <span className="text-lg">🍽️</span>
-                      <span className="font-bold text-sm text-blue-900">
+                      <span className="text-base">🍽️</span>
+                      <span className="font-extrabold text-xs uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                         {c.mealType} PASS
                       </span>
                     </div>
@@ -204,50 +275,56 @@ export default function StudentCouponsPage() {
                   </div>
 
                   <div className="space-y-1 mb-3">
-                    <div className="text-xs text-gray-500 font-medium">Valid On:</div>
-                    <div className="text-base font-bold text-gray-900">
+                    <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                      Valid On:
+                    </span>
+                    <div className="text-base font-extrabold" style={{ color: 'var(--text-primary)' }}>
                       {formatDate(c.date)}
                     </div>
-                    <p className="text-xs text-gray-600 line-clamp-2 mt-1">
+                    <p className="text-xs line-clamp-2 mt-1 leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                       {c.mealDescriptionSnapshot}
                     </p>
                   </div>
+
+                  {/* 5-Digit Counter Code Badge */}
+                  <div
+                    className="p-3 rounded-xl border border-dashed text-center mt-3"
+                    style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-brand)' }}
+                  >
+                    <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                      Attendance 5-Digit Code
+                    </span>
+                    <span
+                      className="font-mono text-2xl font-black tracking-[0.2em] block my-0.5"
+                      style={{ color: 'var(--brand-blue)' }}
+                    >
+                      {c.verificationCode || "—"}
+                    </span>
+                    <span className="text-[10px] font-medium" style={{ color: 'var(--text-muted)' }}>
+                      {c.status === "REDEEMED"
+                        ? `Redeemed ${c.redeemedAt ? new Date(c.redeemedAt).toLocaleTimeString("en-IN", { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit" }) : ""}`
+                        : "Present code at mess counter"}
+                    </span>
+                  </div>
                 </div>
 
-                {/* 5-Digit Counter Code Box */}
-                <div className="my-2 p-3 bg-amber-50 rounded-xl border border-amber-200 text-center">
-                  <span className="text-[10px] uppercase font-bold text-amber-900 tracking-wider block">
-                    Attendance 5-Digit Code
-                  </span>
-                  <span className="font-mono text-2xl font-black text-amber-950 tracking-widest block">
-                    {c.verificationCode || "—"}
-                  </span>
-                  <span className="text-[10px] text-amber-700">
-                    {c.status === "REDEEMED"
-                      ? `Redeemed ${c.redeemedAt ? new Date(c.redeemedAt).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit" }) : ""}`
-                      : "Present this code at mess counter"}
-                  </span>
-                </div>
-
-                {/* Coupon Code Strip */}
-                <div className="mt-3 pt-3 border-t-2 border-dashed border-gray-200 bg-blue-50/50 -mx-5 -mb-5 p-4 rounded-b-2xl">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-[10px] uppercase font-semibold text-gray-500 block">
-                        System ID
-                      </span>
-                      <span className="font-mono text-xs font-bold text-blue-950">
-                        {c.couponCode}
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-[10px] text-gray-500 block">
-                        Ref: {c.bookingId?.bookingCode || "BK"}
-                      </span>
-                      <span className="text-[10px] text-green-700 font-semibold">
-                        Verified
-                      </span>
-                    </div>
+                {/* Perforated Divider & Coupon System ID */}
+                <div
+                  className="px-5 py-3 border-t border-dashed flex items-center justify-between text-[11px]"
+                  style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-default)' }}
+                >
+                  <div>
+                    <span className="text-[9px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                      System ID
+                    </span>
+                    <span className="font-mono font-bold" style={{ color: 'var(--text-primary)' }}>
+                      {c.couponCode}
+                    </span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-[10px] font-mono" style={{ color: 'var(--text-muted)' }}>
+                      {c.bookingId?.bookingCode || "BK"}
+                    </span>
                   </div>
                 </div>
               </div>

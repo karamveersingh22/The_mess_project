@@ -184,43 +184,64 @@ export default function AdminMenuPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Weekly Menu Editor</h1>
-          <p className="text-sm text-gray-600">
-            Customize daily meals, specify alternatives (e.g., Chicken / Paneer), and toggle item availability.
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📝</span>
+            <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              Weekly Menu Builder
+            </h1>
+          </div>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Configure daily menu dishes, dietary alternatives (e.g. Chicken / Paneer), and item availability.
           </p>
         </div>
         <div className="flex gap-2">
           <Button variant="secondary" onClick={handleSeedDefault} isLoading={seeding}>
             Load Standard Menu
           </Button>
-          <Button onClick={handleSaveMenu} isLoading={saving}>
+          <Button onClick={handleSaveMenu} isLoading={saving} className="font-bold">
             Save All Changes
           </Button>
         </div>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          {error}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
+          ✕ {error}
         </div>
       )}
 
       {success && (
-        <div className="rounded-lg bg-green-50 p-4 text-sm text-green-700 border border-green-200">
-          {success}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-text)' }}
+        >
+          ✓ {success}
         </div>
       )}
 
       {weeks.length > 0 && (
-        <div className="flex items-center gap-3 bg-white p-4 rounded-xl border border-gray-200">
-          <span className="text-sm font-medium text-gray-700">Week Cycle:</span>
+        <div
+          className="flex items-center gap-3 p-4 rounded-2xl"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            Operating Cycle:
+          </span>
           <select
             value={selectedWeekId}
             onChange={(e) => setSelectedWeekId(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+            className="rounded-lg px-3 py-1.5 text-xs font-bold transition-colors outline-none cursor-pointer"
+            style={{
+              background: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-default)'
+            }}
           >
             {weeks.map((w) => (
               <option key={w._id} value={w._id}>
@@ -232,64 +253,81 @@ export default function AdminMenuPage() {
       )}
 
       {loading ? (
-        <div className="p-12 text-center text-gray-500">Loading menu data...</div>
+        <div className="p-16 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+          Loading menu data...
+        </div>
       ) : days.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center text-gray-500">
+          <CardContent className="p-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
             No menu found for this week. Click &quot;Load Standard Menu&quot; to initialize with the college mess template.
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-6">
           {days.map((day, dayIndex) => (
-            <Card key={day.dayOfWeek} className="overflow-hidden">
-              <CardHeader className="bg-blue-50/50">
-                <CardTitle className="text-base text-blue-900 font-bold">
-                  {day.dayOfWeek} ({formatDate(day.date)})
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6 pt-4">
+            <div
+              key={day.dayOfWeek}
+              className="rounded-2xl overflow-hidden shadow-sm transition-all"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              <div
+                className="px-5 py-3.5 flex items-center justify-between"
+                style={{
+                  background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                  color: '#FFFFFF',
+                }}
+              >
+                <span className="font-extrabold text-sm">{day.dayOfWeek}</span>
+                <span className="text-xs opacity-80">{formatDate(day.date)}</span>
+              </div>
+
+              <div className="p-5 space-y-4">
                 {day.meals.map((meal, mealIndex) => (
                   <div
                     key={meal.mealType}
-                    className="p-4 rounded-lg border border-gray-100 bg-gray-50/50 space-y-3"
+                    className="p-4 rounded-xl space-y-3"
+                    style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-muted)' }}
                   >
                     <div className="flex items-center justify-between">
-                      <span className="font-semibold text-sm text-gray-900">
+                      <span className="font-black text-xs uppercase tracking-wider" style={{ color: 'var(--text-primary)' }}>
                         {meal.mealType}
                       </span>
-                      <label className="flex items-center gap-2 text-xs font-medium text-gray-600 cursor-pointer">
+                      <label className="flex items-center gap-2 text-xs font-semibold cursor-pointer" style={{ color: 'var(--text-secondary)' }}>
                         <input
                           type="checkbox"
                           checked={meal.isAvailable}
                           onChange={(e) =>
                             handleMealChange(dayIndex, mealIndex, "isAvailable", e.target.checked)
                           }
-                          className="rounded text-blue-900 focus:ring-blue-500"
+                          className="accent-[#83A6CE]"
                         />
                         Available for booking
                       </label>
                     </div>
 
                     <Input
-                      label="Meal Description / Food Items"
+                      label="Meal Description / Dishes"
                       value={meal.description}
                       onChange={(e) =>
                         handleMealChange(dayIndex, mealIndex, "description", e.target.value)
                       }
-                      placeholder="e.g. Dal Makhani, Rice, Roti, Gulab Jamun"
+                      placeholder="e.g. Dal Makhani, Steamed Rice, Butter Roti, Gulab Jamun"
                     />
 
                     {/* Alternatives / Options */}
                     <div className="space-y-2 pt-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
-                          Alternatives / Choices ({meal.options?.length || 0})
+                        <span className="text-[10px] font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+                          Options & Dietary Alternatives ({meal.options?.length || 0})
                         </span>
                         <button
                           type="button"
                           onClick={() => handleAddOption(dayIndex, mealIndex)}
-                          className="text-xs text-blue-900 hover:underline font-medium"
+                          className="text-xs font-bold hover:underline"
+                          style={{ color: 'var(--brand-blue)' }}
                         >
                           + Add Choice (e.g. Chicken / Paneer)
                         </button>
@@ -304,7 +342,12 @@ export default function AdminMenuPage() {
                             onChange={(e) =>
                               handleOptionChange(dayIndex, mealIndex, optIndex, "label", e.target.value)
                             }
-                            className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-xs"
+                            className="flex-1 rounded-lg px-3 py-1.5 text-xs outline-none transition-colors"
+                            style={{
+                              background: 'var(--bg-surface)',
+                              border: '1px solid var(--border-default)',
+                              color: 'var(--text-primary)',
+                            }}
                           />
                           <input
                             type="text"
@@ -313,12 +356,18 @@ export default function AdminMenuPage() {
                             onChange={(e) =>
                               handleOptionChange(dayIndex, mealIndex, optIndex, "description", e.target.value)
                             }
-                            className="flex-1 rounded-md border border-gray-300 px-3 py-1.5 text-xs"
+                            className="flex-1 rounded-lg px-3 py-1.5 text-xs outline-none transition-colors"
+                            style={{
+                              background: 'var(--bg-surface)',
+                              border: '1px solid var(--border-default)',
+                              color: 'var(--text-primary)',
+                            }}
                           />
                           <button
                             type="button"
                             onClick={() => handleRemoveOption(dayIndex, mealIndex, optIndex)}
-                            className="text-red-600 hover:text-red-800 text-xs px-2"
+                            className="text-xs px-2 font-bold opacity-70 hover:opacity-100"
+                            style={{ color: 'var(--danger-text)' }}
                           >
                             ✕
                           </button>
@@ -327,12 +376,11 @@ export default function AdminMenuPage() {
                     </div>
                   </div>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       )}
     </div>
   );
 }
-

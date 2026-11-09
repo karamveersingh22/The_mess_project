@@ -1,7 +1,7 @@
 # Smart Mess Meal Booking and Coupon Management System — Project Context & Handover Guide
 
 > **Source of Truth Reference:** [`planning.md`](file:///e:/college/html%20lab/mess_project/planning.md) *(Read-only requirement specification; NEVER modify this file)*  
-> **Status:** All Phases (1 through 7) Fully Implemented, Built (`next build`), Tested (`npm test`), and Seeded into MongoDB Atlas  
+> **Status:** All Phases (1 through 7) Fully Implemented, Professional UI/UX Overhaul Completed, Light/Dark Theme Active, Built (`next build`), Tested (`npm test`), and Seeded into MongoDB Atlas  
 > **Repository:** Single Next.js (App Router) full-stack application targeting Vercel deployment with MongoDB Atlas  
 
 ---
@@ -16,16 +16,16 @@
    - You are the coding partner who writes the code, diagnoses bugs, and guides the user step-by-step.
 3. **Current State:**
    - The application is **100% written, compiled, and tested**.
-   - Production build (`npm run build`) compiles with zero errors.
+   - Production build (`npm run build`) compiles cleanly with 0 errors across all 19 pages and 27 routes.
    - Automated business rule tests (`npm test`) pass 13/13 (100%).
-   - The database in MongoDB Atlas is **already connected and populated** with demo accounts, a live weekly cycle, menu, prices, and test coupons (`npm run seed`).
-   - Tailwind CSS v4 styling issues have been resolved using `@tailwindcss/postcss` and `postcss.config.mjs`.
+   - The database in MongoDB Atlas is **connected and populated** with demo accounts, a live weekly cycle, menu, prices, and test coupons (`npm run seed`).
+   - Professional UI/UX redesign completed with light/dark theme toggle using the requested custom palette (`#0D1E4C`, `#C48CB3`, `#E5C9D7`, `#83A6CE`, `#26415E`, `#0B1B32`).
 
 ---
 
 ## 1. System Overview & Core Workflow
 
-The system digitizes the college mess's weekly meal-coupon distribution workflow:
+The system digitizes the college mess's weekly meal-coupon distribution and attendance tracking workflow:
 
 ```text
 Student Selects Meals (Mon–Sun)
@@ -47,9 +47,13 @@ Payment Recorded as VERIFIED -> Booking marked APPROVED
        │
        ▼
 Atomic Digital Coupons Generated (1 coupon per selected meal)
+with a Unique 5-Digit Counter Verification Code
        │
        ▼
-Student Shows Digital Passes (/student/coupons) at Mess Counter
+Student tells 5-digit code at mess counter -> Admin enters code in Counter Console
+       │
+       ▼
+Attendance Recorded & Coupon marked REDEEMED
 ```
 
 ### Core Business Rules Enforced:
@@ -58,159 +62,109 @@ Student Shows Digital Passes (/student/coupons) at Mess Counter
   - Breakfast: **₹25**
   - Lunch: **₹45**
   - Dinner: **₹40**
-- **Minimum Booking Amount:** Strictly **₹300** per student per weekly cycle.
-- **Price Snapshots:** Authoritative prices are snapshotted in `BookingItem` records upon submission. Subsequent admin price changes never alter existing submitted bookings.
-- **Booking Uniqueness:** A student can have at most one active (`PENDING` or `APPROVED`) booking per weekly cycle. If rejected or cancelled, resubmissions are permitted while the booking window remains open.
-- **Coupons:** Exactly 1 digital coupon with a unique `CP-...` code is issued per meal item. No coupons are issued for pending or rejected bookings.
+- **Minimum Booking Amount:** **₹300** mandatory threshold per week. Bookings below this amount are rejected.
+- **Physical Cash Verification:** Cash payments are recorded as verified by the admin upon receiving currency at the desk.
+- **Atomic 1-to-1 Coupons:** Exactly 1 digital coupon per meal with a unique 5-digit counter verification code.
+- **5-Digit Counter Attendance System:** Student tells their 5-digit daily code to mess staff at the physical counter. Admin types it into the live Attendance Tracker console (`/admin/counter`), which verifies the meal type and date, records attendance, and marks the pass as redeemed.
+- **Timezone Awareness:** All coupon validity checks and redemptions evaluate dates using Indian Standard Time (`Asia/Kolkata`, UTC+5:30) via `isSameDayInAppTZ()`.
 
 ---
 
-## 2. All Phases Status & Completed Deliverables
+## 2. Design System & Theme Architecture
 
-| Phase | Description | Status | Deliverables |
-|---|---|---|---|
-| **Phase 1** | **Project Setup & Mongoose Models** | ✅ **COMPLETE** | 9 Mongoose schemas, cached serverless connection helper (`src/lib/mongodb/connection.ts`), base UI kit (`Button`, `Input`, `Card`, `Badge`), shared layouts (`Navbar`, `Sidebar`), health check endpoint (`/api/health`). |
-| **Phase 2** | **Auth & Role-Based Access Control** | ✅ **COMPLETE** | Custom JWT auth engine (`jose` + `bcryptjs`), HTTP-only session cookie (`mess_session`), edge route guard (`src/middleware.ts`), `/login`, `/register`, role dashboards, admin seeder (`/api/auth/seed-admin`). |
-| **Phase 3** | **Weekly Cycle, Menu & Prices** | ✅ **COMPLETE** | Weekly cycle manager (`/admin/weeks`), 7-day menu editor with alternatives like Chicken/Paneer (`/admin/menu`), price manager with ₹300 minimum (`/admin/prices`), student menu viewer (`/student/menu`), 7-day college mess seed template. |
-| **Phase 4** | **Student Booking Workflow** | ✅ **COMPLETE** | Interactive meal grid (`/student/booking`), dynamic live total counter, ₹300 minimum threshold progress bar, server-side price recalculation, active booking uniqueness, student booking history (`/student/history`) with itemized details and admin rejection reasons. |
-| **Phase 5** | **Admin Review & Payment Verification** | ✅ **COMPLETE** | Admin review table (`/admin/bookings`), search and status filters, itemized inspection, physical cash payment verification with `Payment` creation, approval/rejection with required reason, real-time KPI metrics (`/api/admin/metrics`), student directory (`/admin/students`). |
-| **Phase 6** | **Digital Coupon Engine & Attendance Tracking** | ✅ **COMPLETE** | Atomic coupon generator with 5-digit verification codes (`src/services/coupon.service.ts`), unique coupon code generator (`CP-...`), student digital passes (`/student/coupons`) with "Today's Active Meal Pass" highlight and 5-digit numeric tokens, staff attendance counter terminal (`/admin/counter`), real-time attendance redemption engine (`/api/admin/counter`) with duplicate meal blocking, date mismatch validation, and live expected/served counters. |
-| **Phase 7** | **Testing, Polish & Demo Seeding** | ✅ **COMPLETE** | Production build verified (`next build`), clean TypeScript compilation, automated business rules test suite (`scripts/test-rules.mjs`), CLI database seeder (`scripts/seed-cli.mjs`). |
+A cohesive, modern UI/UX design was implemented to match the standard of a professional production application:
 
----
+### Color Palette (from `theme_for_ui_changes.jpg`):
+- Deep Navy: `#0D1E4C` (`--brand-navy`)
+- Slate Navy: `#26415E` (`--brand-slate`)
+- Midnight Navy: `#0B1B32` (`--brand-midnight`)
+- Steel Blue: `#83A6CE` (`--brand-blue`)
+- Dusty Rose: `#C48CB3` (`--brand-rose`)
+- Blush Pink: `#E5C9D7` (`--brand-blush`)
 
-## 3. Live Demo Credentials & Pre-Seeded Database
-
-The database in MongoDB Atlas is **live and pre-seeded** with the following accounts:
-
-| Role | Email / Roll Number | Password | Scenario in Live Demo |
-|---|---|---|---|
-| **Mess Admin** | `admin@mess.college` | `AdminPassword@123` | Can verify cash, approve bookings, edit menus & prices |
-| **Student 1** | `student@college.edu` (`21CS101`) | `Student@123` | Has an **APPROVED** booking with live digital coupons in `/student/coupons` |
-| **Student 2** | `priya@college.edu` (`21CS102`) | `Student@123` | Has a **PENDING** booking (₹330) waiting for physical cash verification |
+### Theming System:
+- **Light/Dark Toggle:** Supported across the entire application via `ThemeToggle.tsx` and standard CSS variables in `globals.css`.
+- **Theme Persistence:** Stores user preference in `localStorage('messbook-theme')` with automatic system `prefers-color-scheme` fallback.
+- **No FOUC (Flash of Unstyled Content):** Layout features an inline early execution script in `<head>` preventing theme flicker.
+- **Component Consistency:** All UI components (`Card`, `Button`, `Input`, `Badge`, `Navbar`, `Sidebar`) and all pages adapt between light and dark modes.
 
 ---
 
-## 4. Key CLI Commands
+## 3. Demo Credentials
 
-```bash
-# 1. Run local development server
-npm run dev
+The database contains seeded test users:
 
-# 2. Run automated business rules test suite (9/9 tests pass)
-npm test
-
-# 3. Reseed demo dataset into MongoDB Atlas
-npm run seed
-
-# 4. Production build check
-npm run build
-
-# 5. Type-check entire codebase
-npx tsc --noEmit
-```
+| Role | Email / Identifier | Password | Access Path |
+|------|--------------------|----------|-------------|
+| **Mess Admin** | `admin@mess.college` | `AdminPassword@123` | `/admin/dashboard` |
+| **Student 1** | `student@college.edu` (Roll: `21CS001`) | `Student@123` | `/student/dashboard` |
+| **Student 2** | `priya@college.edu` (Roll: `21CS042`) | `Student@123` | `/student/dashboard` |
 
 ---
 
-## 5. Directory & File Inventory
+## 4. Key Project Files
 
 ```text
 mess_project/
-├── .env.local                    # MONGODB_URI, AUTH_SECRET, NEXT_PUBLIC_APP_URL
-├── package.json                  # Next.js 16, React 19, Mongoose, bcryptjs, jose, Tailwind v4
-├── postcss.config.mjs            # @tailwindcss/postcss plugin configuration
-├── tsconfig.json                 # TypeScript paths: "@/*" -> "./src/*"
-├── planning.md                   # INVIOLABLE specifications document (DO NOT EDIT)
-├── project_context.md            # Living context and handover documentation (THIS FILE)
-├── scripts/
-│   ├── test-rules.mjs            # 9/9 business rule automated test suite
-│   └── seed-cli.mjs              # Standalone MongoDB Atlas database seeder
 ├── src/
-│   ├── middleware.ts             # Edge role guard protecting /student/* and /admin/*
 │   ├── app/
-│   │   ├── layout.tsx            # Root layout with font and metadata
-│   │   ├── globals.css           # Tailwind v4 import and color variables
-│   │   ├── page.tsx              # Public landing page with workflow explanation
-│   │   ├── login/page.tsx        # Unified login (email/roll + password)
-│   │   ├── register/page.tsx     # Student registration form
+│   │   ├── globals.css           # Full CSS variables (light & dark)
+│   │   ├── layout.tsx            # Root layout with theme-flash prevention script
+│   │   ├── page.tsx              # Landing page with hero banner & features
+│   │   ├── login/page.tsx        # Split screen auth (brand panel + form)
+│   │   ├── register/page.tsx     # Student registration page
 │   │   ├── student/
-│   │   │   ├── layout.tsx        # Student portal layout with Sidebar & MobileNav
-│   │   │   ├── dashboard/page.tsx# Student home with live status and metrics
-│   │   │   ├── menu/page.tsx     # 7-day weekly menu viewer
-│   │   │   ├── booking/page.tsx  # Meal selection grid with dynamic total & ₹300 min
-│   │   │   ├── history/page.tsx  # Booking history with itemized details modal
-│   │   │   └── coupons/page.tsx  # Digital coupon pass wallet
+│   │   │   ├── layout.tsx        # Student shell with Navbar & Sidebar
+│   │   │   ├── dashboard/page.tsx# Metrics, quick-book banner & guides
+│   │   │   ├── booking/page.tsx  # Meal tray builder, day tabs & progress bar
+│   │   │   ├── menu/page.tsx     # Weekly menu cards with day filters
+│   │   │   ├── coupons/page.tsx  # Boarding-pass digital wallet & 5-digit codes
+│   │   │   └── history/page.tsx  # Past bookings & itemized receipt modal
 │   │   ├── admin/
-│   │   │   ├── layout.tsx        # Admin portal layout with Sidebar
-│   │   │   ├── dashboard/page.tsx# Control panel with live KPIs & seeder button
-│   │   │   ├── counter/page.tsx  # Quick 5-digit attendance counter & meal verifier
-│   │   │   ├── weeks/page.tsx    # Weekly cycle manager (Mon–Sun cycles)
-│   │   │   ├── prices/page.tsx   # Meal pricing & minimum amount manager
-│   │   │   ├── menu/page.tsx     # 7-day menu editor with alternatives
-│   │   │   ├── bookings/page.tsx # Booking review, cash verification & approvals
-│   │   │   ├── coupons/page.tsx  # Mess kitchen coupon quantity explorer
+│   │   │   ├── layout.tsx        # Admin shell
+│   │   │   ├── dashboard/page.tsx# Operations control center
+│   │   │   ├── counter/page.tsx  # 5-digit attendance counter console & live feed
+│   │   │   ├── bookings/page.tsx # Cash approvals, search & rejection modal
+│   │   │   ├── coupons/page.tsx  # Kitchen quantity registry
+│   │   │   ├── weeks/page.tsx    # Cycle scheduling & open/close toggles
+│   │   │   ├── prices/page.tsx   # Per-meal prices & ₹300 minimum setting
+│   │   │   ├── menu/page.tsx     # 7-day menu editor with dietary options
 │   │   │   └── students/page.tsx # Registered student directory
-│   │   └── api/                  # 18 Backend Route Handlers
-│   │       ├── health/           # DB connection health check
-│   │       ├── auth/             # register, login, logout, me, seed-admin
-│   │       ├── weeks/            # list weeks, week details
-│   │       ├── menu/             # get/update weekly menu, seed menu
-│   │       ├── prices/           # get/update weekly prices
-│   │       ├── bookings/         # submit booking, student bookings, booking items
-│   │       ├── coupons/          # student coupons
-│   │       ├── student/metrics/  # live student dashboard data
-│   │       └── admin/            # bookings, approve, reject, coupons, students, metrics, seed-demo
+│   │   └── api/                  # 19 Backend Route Handlers
 │   ├── components/
-│   │   ├── ui/                   # Button, Input, Card, Badge
-│   │   └── shared/               # Navbar, Sidebar, MobileNav
+│   │   ├── ui/                   # Card, Button, Input, Badge
+│   │   └── shared/               # Navbar, Sidebar, ThemeToggle
 │   ├── lib/
-│   │   ├── auth/index.ts         # JWT sign/verify, bcrypt hashing, cookie helpers
-│   │   ├── mongodb/connection.ts # Cached Mongoose connection for serverless
-│   │   ├── validation/auth.ts    # Input validators
-│   │   ├── constants/menu.ts     # 7-day Monday–Sunday college mess menu template
-│   │   └── utils/index.ts        # formatCurrency (₹), formatDate, code generators
-│   ├── models/                   # 9 Mongoose Models
-│   │   ├── User.ts
-│   │   ├── Week.ts
-│   │   ├── WeeklyPrice.ts
-│   │   ├── WeeklyMenu.ts
-│   │   ├── Booking.ts
-│   │   ├── BookingItem.ts
-│   │   ├── Payment.ts
-│   │   ├── Coupon.ts
-│   │   └── AuditLog.ts
-│   ├── services/
-│   │   ├── booking.service.ts    # Authoritative price calculation & ₹300 minimum check
-│   │   └── coupon.service.ts     # Idempotent 1-to-1 coupon generation
-│   └── types/index.ts            # Shared TypeScript interfaces and default rates
+│   │   ├── auth/index.ts         # JWT sign/verify, bcrypt hashing, cookies
+│   │   ├── mongodb/connection.ts # Cached Mongoose connection
+│   │   └── utils/index.ts        # IST timezone helpers (isSameDayInAppTZ)
+│   └── types/index.ts            # Shared TypeScript interfaces & defaults
 ```
 
 ---
 
-## 6. Important Technical Notes & Past Gotchas
+## 5. Verification Commands
 
-1. **Tailwind CSS v4 & PostCSS Configuration:**
-   - In Tailwind v4 with Next.js, `@tailwindcss/postcss` and `postcss.config.mjs` are required.
-   - Do not use `@theme inline { ... }` in `globals.css` as it throws PostCSS parsing errors. Standard CSS `:root` variables are used instead.
-2. **Next.js 16 Webpack Flag:**
-   - On Windows, Turbopack child processes occasionally encounter EPERM pipe errors. The `dev` and `build` scripts in `package.json` use `--webpack` to ensure rock-solid stability.
-3. **MongoDB Connection Caching:**
-   - `src/lib/mongodb/connection.ts` caches the connection on `global.mongooseCache`. This avoids connection exhaustion across serverless function invocations on Vercel.
-
----
-
-## 7. Next Steps for Evaluation & Vercel Deployment
-
-1. **Commit All Code to GitHub:**
+1. **Run Unit Tests:**
    ```bash
-   git add .
-   git commit -m "Complete Smart Mess Meal Booking and Coupon Management System"
-   git push origin main
+   npm test
    ```
-2. **Deploy on Vercel:**
-   - Import the repository into Vercel.
-   - Add Environment Variables:
-     - `MONGODB_URI`: (User's Atlas URI)
-     - `AUTH_SECRET`: (JWT secret)
-     - `NEXT_PUBLIC_APP_URL`: (Vercel production URL)
-   - Ensure MongoDB Atlas has Network Access set to `0.0.0.0/0` (Allow Access from Anywhere) so Vercel dynamic IPs can connect.
+   *(Executes `scripts/test-rules.mjs` verifying all 13 core business rules)*
+
+2. **Run TypeScript Check:**
+   ```bash
+   npx tsc --noEmit
+   ```
+   *(Zero errors)*
+
+3. **Run Production Build:**
+   ```bash
+   npm run build
+   ```
+   *(Uses `--webpack` for stability on Windows; compiles 19 pages & 27 endpoints)*
+
+4. **Run Local Dev Server:**
+   ```bash
+   npm run dev
+   ```
+   *(Access at `http://localhost:3000`)*

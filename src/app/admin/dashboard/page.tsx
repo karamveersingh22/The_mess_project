@@ -65,22 +65,42 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Admin Header */}
-      <div className="rounded-2xl bg-blue-950 p-6 sm:p-8 text-white shadow-md">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div
+        className="rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #0D1E4C 0%, #26415E 70%, #0B1B32 100%)',
+          border: '1.5px solid #83A6CE33',
+        }}
+      >
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-white/10 text-white border border-white/15">
+              <span>🛡️</span>
+              <span>Mess Staff Operations</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               Mess Admin Control Center
             </h1>
-            <p className="mt-1 text-blue-200 text-sm">
-              College Mess Booking & Digital Coupon Distribution System
+            <p className="mt-1 text-sm text-slate-300">
+              Cash verification, attendance gate tracking, and meal lifecycle management.
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
+
+          <div className="flex flex-wrap gap-2.5">
             <Link href="/admin/counter">
-              <Button size="md" className="bg-amber-400 hover:bg-amber-500 text-gray-950 font-bold shadow">
-                ⚡ Attendance Counter
+              <Button
+                size="md"
+                className="font-black shadow-lg"
+                style={{ background: '#E5C9D7', color: '#0D1E4C' }}
+              >
+                ⚡ Counter Gate
+              </Button>
+            </Link>
+            <Link href="/admin/bookings">
+              <Button size="md" className="font-bold">
+                Cash Approvals
               </Button>
             </Link>
             <Button
@@ -88,194 +108,217 @@ export default function AdminDashboardPage() {
               size="md"
               onClick={handleSeedDemoData}
               isLoading={seeding}
+              className="font-bold"
             >
-              Quick-Seed Demo
+              Seed Demo
             </Button>
-            <Link href="/admin/bookings">
-              <Button variant="success" size="md">
-                Review Bookings
-              </Button>
-            </Link>
           </div>
         </div>
       </div>
 
       {seedSuccess && (
-        <div className="rounded-xl bg-green-50 p-4 text-sm text-green-800 border border-green-300">
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-text)' }}
+        >
           ✓ {seedSuccess}
         </div>
       )}
 
-      {/* KPI Summary Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Pending Bookings
-            </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-amber-600">
+      {/* Primary KPI Cards */}
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Pending Cash Approvals */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Pending Cash Approvals
+          </span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-black" style={{ color: metrics?.pendingCount ? '#DC2626' : 'var(--text-primary)' }}>
               {loading ? "..." : metrics?.pendingCount ?? 0}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Awaiting physical cash verification
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Approved Bookings
             </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-green-600">
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>awaiting counter cash</span>
+          </div>
+          <Link
+            href="/admin/bookings?status=PENDING"
+            className="text-xs font-bold mt-2 inline-block hover:underline"
+            style={{ color: 'var(--brand-blue)' }}
+          >
+            Review pending →
+          </Link>
+        </div>
+
+        {/* Approved Bookings */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Approved Bookings
+          </span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-black text-emerald-600">
               {loading ? "..." : metrics?.approvedCount ?? 0}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Payment confirmed & coupons issued
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Cash Verified
             </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-bold text-blue-900">
-              ₹{loading ? "..." : (metrics?.totalVerifiedAmount ?? 0).toLocaleString("en-IN")}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Excludes unverified pending requests
-            </p>
-          </CardContent>
-        </Card>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>verified orders</span>
+          </div>
+          <p className="mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Active weekly bookings
+          </p>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Active Week Status
+        {/* Total Cash Collected */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Verified Revenue
+          </span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-black" style={{ color: 'var(--brand-blue)' }}>
+              ₹{loading ? "..." : metrics?.totalVerifiedAmount ?? 0}
             </span>
-          </CardHeader>
-          <CardContent>
-            {metrics?.activeWeek ? (
-              <div>
-                <div className="text-base font-bold text-green-700">
-                  OPEN FOR BOOKING
-                </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  {formatDate(metrics.activeWeek.startDate)} – {formatDate(metrics.activeWeek.endDate)}
-                </p>
-              </div>
-            ) : (
-              <div>
-                <div className="text-sm font-bold text-gray-700">
-                  No Open Cycle
-                </div>
-                <p className="mt-1 text-xs text-gray-400">
-                  Configure in Weekly Cycles
-                </p>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>INR</span>
+          </div>
+          <p className="mt-2 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Physical cash accounted
+          </p>
+        </div>
+
+        {/* Active Digital Passes */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Coupons Issued
+          </span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
+              {loading ? "..." : metrics?.couponCount ?? 0}
+            </span>
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>with 5-digit codes</span>
+          </div>
+          <Link
+            href="/admin/coupons"
+            className="text-xs font-bold mt-2 inline-block hover:underline"
+            style={{ color: 'var(--brand-blue)' }}
+          >
+            Inspect passes →
+          </Link>
+        </div>
       </div>
 
-      {/* Auxiliary Statistics */}
-      <div className="grid gap-6 sm:grid-cols-2">
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-gray-500 uppercase">
-                Registered Students
-              </span>
-              <div className="text-2xl font-bold text-gray-900 mt-1">
-                {loading ? "..." : metrics?.studentCount ?? 0} Students
-              </div>
-              <p className="text-xs text-gray-500 mt-1">Active college student accounts</p>
+      {/* Active Week Banner */}
+      {metrics?.activeWeek && (
+        <div
+          className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-brand)' }}
+        >
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--brand-blue)' }}>
+              Current Operating Cycle
+            </span>
+            <span className="text-base font-extrabold mt-0.5 block" style={{ color: 'var(--text-primary)' }}>
+              {formatDate(metrics.activeWeek.startDate)} – {formatDate(metrics.activeWeek.endDate)}
+            </span>
+          </div>
+          <div className="flex gap-2.5">
+            <Link href="/admin/menu">
+              <Button size="sm" variant="secondary">
+                Edit Cycle Menu
+              </Button>
+            </Link>
+            <Link href="/admin/weeks">
+              <Button size="sm" variant="outline">
+                Manage Cycles
+              </Button>
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Action Directory */}
+      <div className="grid gap-5 md:grid-cols-3">
+        <div
+          className="rounded-2xl p-5 flex flex-col justify-between"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-3" style={{ background: '#83A6CE20', color: 'var(--brand-blue)' }}>
+              ⚡
             </div>
-            <Link href="/admin/students">
-              <Button variant="outline" size="sm">
-                View Directory →
+            <h3 className="font-extrabold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
+              Attendance Tracker
+            </h3>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Gate distribution console. Type the student&apos;s 5-digit verification code to instantly mark attendance.
+            </p>
+          </div>
+          <div className="pt-4">
+            <Link href="/admin/counter">
+              <Button size="sm" className="w-full">
+                Open Counter Console →
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <span className="text-xs font-semibold text-gray-500 uppercase">
-                Digital Coupons Issued
-              </span>
-              <div className="text-2xl font-bold text-blue-900 mt-1">
-                {loading ? "..." : metrics?.couponCount ?? 0} Coupons
-              </div>
-              <p className="text-xs text-gray-500 mt-1">1 coupon per selected meal</p>
+        <div
+          className="rounded-2xl p-5 flex flex-col justify-between"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-3" style={{ background: '#C48CB320', color: 'var(--brand-rose)' }}>
+              💵
             </div>
-            <Link href="/admin/coupons">
-              <Button variant="outline" size="sm">
-                View Coupons →
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Core Workflow Operations */}
-      <div className="grid gap-6 md:grid-cols-3">
-        <Card>
-          <CardHeader>
-            <CardTitle>1. Booking Cycle</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Create the Monday–Sunday booking cycle, configure start/end window, and open or close bookings.
+            <h3 className="font-extrabold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
+              Cash Verification
+            </h3>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Approve student bookings upon collecting physical cash. Generates digital meal coupons automatically.
             </p>
-            <Link href="/admin/weeks" className="inline-block">
-              <Button variant="outline" size="sm">
-                Manage Cycles →
+          </div>
+          <div className="pt-4">
+            <Link href="/admin/bookings">
+              <Button size="sm" variant="secondary" className="w-full">
+                Manage Cash Requests →
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>2. Weekly Menu</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Edit the 7-day schedule with food alternatives (Chicken/Paneer, Veg/Egg) and item availability.
+        <div
+          className="rounded-2xl p-5 flex flex-col justify-between"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <div>
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-3" style={{ background: '#26415E20', color: 'var(--brand-slate)' }}>
+              ⚙️
+            </div>
+            <h3 className="font-extrabold text-sm mb-1" style={{ color: 'var(--text-primary)' }}>
+              Menu & Pricing
+            </h3>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Configure breakfast, lunch, and dinner meal offerings, dietary options, and minimum threshold amounts.
             </p>
-            <Link href="/admin/menu" className="inline-block">
-              <Button variant="outline" size="sm">
-                Edit Menu →
+          </div>
+          <div className="pt-4 flex gap-2">
+            <Link href="/admin/menu" className="flex-1">
+              <Button size="sm" variant="outline" className="w-full">
+                Menu
               </Button>
             </Link>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>3. Meal Pricing</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-gray-600">
-              Set weekly rates (B: ₹25, L: ₹45, D: ₹40) and enforce the ₹300 minimum weekly booking threshold.
-            </p>
-            <Link href="/admin/prices" className="inline-block">
-              <Button variant="outline" size="sm">
-                Manage Prices →
+            <Link href="/admin/prices" className="flex-1">
+              <Button size="sm" variant="outline" className="w-full">
+                Prices
               </Button>
             </Link>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,63 +1,96 @@
 "use client";
-
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
+import { usePathname, useRouter } from "next/navigation";
+import { ThemeToggle } from "./ThemeToggle";
 
 interface NavbarProps {
-  user?: {
-    name: string;
-    role: string;
-  } | null;
+  user?: { name: string; role: string } | null;
 }
 
 export function Navbar({ user }: NavbarProps) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    await fetch("/api/auth/logout", { method: "POST" });
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl font-bold text-blue-900">🍽️ MessBook</span>
+    <header
+      className="sticky top-0 z-50 w-full backdrop-blur-md"
+      style={{
+        backgroundColor: 'color-mix(in srgb, var(--bg-surface) 92%, transparent)',
+        borderBottom: '1px solid var(--border-default)',
+      }}
+    >
+      <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
+        <Link href="/" className="flex items-center gap-2 group">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black"
+            style={{ background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))', color: '#fff' }}
+          >
+            M
+          </div>
+          <span
+            className="text-base font-bold tracking-tight"
+            style={{ color: 'var(--text-primary)' }}
+          >
+            MessBook
+          </span>
         </Link>
 
-        <nav className="flex items-center gap-4">
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
           {!user ? (
             <>
               <Link
                 href="/login"
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-blue-900",
-                  pathname === "/login" ? "text-blue-900" : "text-gray-600"
-                )}
+                className="hidden sm:block px-3 py-1.5 text-sm font-medium rounded-lg transition-colors"
+                style={{ color: 'var(--text-secondary)' }}
               >
                 Login
               </Link>
               <Link
                 href="/register"
-                className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
+                className="px-3 py-1.5 text-sm font-semibold rounded-lg transition-colors"
+                style={{ background: 'var(--brand-navy)', color: '#fff' }}
               >
                 Register
               </Link>
             </>
           ) : (
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                Welcome, <span className="font-medium text-gray-900">{user.name}</span>
-              </span>
-              <form action="/api/auth/logout" method="POST">
-                <button
-                  type="submit"
-                  className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
-                >
-                  Logout
-                </button>
-              </form>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex flex-col items-end">
+                <span className="text-xs font-semibold leading-none" style={{ color: 'var(--text-primary)' }}>
+                  {user.name.split(" ")[0]}
+                </span>
+                <span className="text-[10px] mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                  {user.role}
+                </span>
+              </div>
+              <div
+                className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: 'linear-gradient(135deg, var(--brand-rose), var(--brand-blue))', color: '#fff' }}
+              >
+                {user.name.charAt(0).toUpperCase()}
+              </div>
+              <button
+                onClick={handleLogout}
+                className="hidden sm:block px-3 py-1.5 text-xs font-medium rounded-lg transition-colors"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Logout
+              </button>
             </div>
           )}
-        </nav>
+        </div>
       </div>
     </header>
   );
 }
-

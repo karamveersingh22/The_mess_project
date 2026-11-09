@@ -1,111 +1,122 @@
 import Link from "next/link";
+import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 export default function HomePage() {
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen" style={{ background: 'var(--bg-base)' }}>
       {/* Header */}
-      <header className="border-b border-gray-200 bg-white">
-        <div className="container mx-auto flex h-16 items-center justify-between px-4">
-          <span className="text-xl font-bold text-blue-900">🍽️ MessBook</span>
-          <div className="flex items-center gap-4">
-            <Link
-              href="/login"
-              className="text-sm font-medium text-gray-600 hover:text-blue-900 transition-colors"
-            >
+      <header
+        className="sticky top-0 z-50 backdrop-blur-md"
+        style={{
+          backgroundColor: 'color-mix(in srgb, var(--bg-surface) 92%, transparent)',
+          borderBottom: '1px solid var(--border-default)',
+        }}
+      >
+        <div className="container mx-auto flex h-14 items-center justify-between px-4 md:px-6">
+          <div className="flex items-center gap-2">
+            <div
+              className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-black text-white"
+              style={{ background: 'linear-gradient(135deg, #0D1E4C, #26415E)' }}
+            >M</div>
+            <span className="text-base font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>MessBook</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            <Link href="/login" className="hidden sm:block px-3 py-1.5 text-sm font-medium rounded-lg transition-colors" style={{ color: 'var(--text-secondary)' }}>
               Login
             </Link>
-            <Link
-              href="/register"
-              className="rounded-lg bg-blue-900 px-4 py-2 text-sm font-medium text-white hover:bg-blue-800 transition-colors"
-            >
-              Register
+            <Link href="/register" className="px-4 py-1.5 text-sm font-semibold rounded-lg text-white" style={{ background: 'linear-gradient(135deg, #0D1E4C, #26415E)' }}>
+              Get Started
             </Link>
           </div>
         </div>
       </header>
 
-      {/* Hero */}
       <main className="flex-1">
-        <section className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl md:text-6xl">
-            Smart Mess Meal
-            <span className="block text-blue-900">Booking System</span>
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-gray-600">
-            Book your weekly mess meals online, get digital coupons, and skip
-            the offline queue. Simple, fast, and hassle-free.
-          </p>
-          <div className="mt-10 flex items-center justify-center gap-4">
-            <Link
-              href="/register"
-              className="rounded-lg bg-blue-900 px-8 py-3 text-base font-medium text-white hover:bg-blue-800 transition-colors shadow-lg shadow-blue-900/25"
+        {/* Hero */}
+        <section className="relative overflow-hidden">
+          <div
+            className="absolute inset-0 opacity-10"
+            style={{ background: 'radial-gradient(ellipse at top left, #83A6CE, transparent 60%), radial-gradient(ellipse at bottom right, #C48CB3, transparent 60%)' }}
+          />
+          <div className="container mx-auto px-4 md:px-6 py-20 md:py-28 text-center relative">
+            <div
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-6"
+              style={{ background: 'var(--info-bg)', color: 'var(--info-text)', border: '1px solid var(--info-border)' }}
             >
-              Get Started
-            </Link>
-            <Link
-              href="/login"
-              className="rounded-lg border-2 border-blue-900 px-8 py-3 text-base font-medium text-blue-900 hover:bg-blue-50 transition-colors"
-            >
-              Login
-            </Link>
+              <span className="w-1.5 h-1.5 rounded-full bg-current animate-pulse" />
+              Digital Meal Management System
+            </div>
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6" style={{ color: 'var(--text-primary)' }}>
+              Smart Mess<br />
+              <span style={{ background: 'linear-gradient(135deg, #0D1E4C, #83A6CE)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
+                Meal Booking
+              </span>
+            </h1>
+            <p className="mx-auto max-w-xl text-base md:text-lg mb-10" style={{ color: 'var(--text-secondary)' }}>
+              Book your weekly meals online, pay at the mess office, and collect your digital coupons. No queues. No paper. Just your phone.
+            </p>
+            <div className="flex items-center justify-center gap-3 flex-wrap">
+              <Link
+                href="/register"
+                className="px-7 py-3 rounded-xl text-sm font-bold text-white shadow-lg transition-transform hover:scale-105 active:scale-95"
+                style={{ background: 'linear-gradient(135deg, #0D1E4C, #26415E)', boxShadow: '0 8px 24px rgba(13,30,76,0.3)' }}
+              >
+                Register as Student
+              </Link>
+              <Link
+                href="/login"
+                className="px-7 py-3 rounded-xl text-sm font-bold transition-transform hover:scale-105 active:scale-95"
+                style={{ background: 'var(--bg-surface)', border: '1.5px solid var(--border-default)', color: 'var(--text-primary)' }}
+              >
+                Sign In →
+              </Link>
+            </div>
           </div>
         </section>
 
-        {/* Features */}
-        <section className="border-t border-gray-200 bg-white py-16">
-          <div className="container mx-auto px-4">
-            <h2 className="text-center text-2xl font-bold text-gray-900 mb-12">
-              How It Works
-            </h2>
-            <div className="grid gap-8 md:grid-cols-3">
-              <div className="text-center p-6">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-100 text-2xl">
-                  📋
+        {/* How it Works */}
+        <section className="py-16" style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)' }}>
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center mb-12">
+              <h2 className="text-2xl font-bold mb-2" style={{ color: 'var(--text-primary)' }}>How It Works</h2>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Three simple steps to get your digital meal passes</p>
+            </div>
+            <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
+              {[
+                { step: "01", icon: "📋", title: "Browse & Select", desc: "Pick your breakfast, lunch, and dinner for each day of the week. Live pricing shown.", color: '#83A6CE' },
+                { step: "02", icon: "💵", title: "Pay at the Counter", desc: "Visit the mess office and pay the total amount in cash. No online payment needed.", color: '#C48CB3' },
+                { step: "03", icon: "🎫", title: "Get Digital Coupons", desc: "Admin verifies payment and your 5-digit meal codes are generated instantly.", color: '#0D1E4C' },
+              ].map((item) => (
+                <div
+                  key={item.step}
+                  className="relative p-6 rounded-2xl"
+                  style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-muted)' }}
+                >
+                  <div className="flex items-start gap-4">
+                    <div
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-xl flex-shrink-0"
+                      style={{ background: `${item.color}20`, border: `1px solid ${item.color}40` }}
+                    >{item.icon}</div>
+                    <div>
+                      <span className="text-[10px] font-black tracking-widest" style={{ color: 'var(--text-muted)' }}>STEP {item.step}</span>
+                      <h3 className="text-sm font-bold mt-0.5 mb-1" style={{ color: 'var(--text-primary)' }}>{item.title}</h3>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>{item.desc}</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  1. Select Meals
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Browse the weekly menu and pick your breakfast, lunch, and
-                  dinner for each day.
-                </p>
-              </div>
-              <div className="text-center p-6">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl">
-                  💰
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  2. Pay & Get Verified
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Pay the mess admin in person. They&apos;ll verify your payment
-                  and approve your booking.
-                </p>
-              </div>
-              <div className="text-center p-6">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-amber-100 text-2xl">
-                  🎫
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900">
-                  3. Get Digital Coupons
-                </h3>
-                <p className="mt-2 text-sm text-gray-600">
-                  Once approved, your digital meal coupons are ready.
-                  No more paper coupons!
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-gray-200 bg-white py-8">
-        <div className="container mx-auto px-4 text-center text-sm text-gray-500">
-          <p>
-            © {new Date().getFullYear()} MessBook — Smart Mess Meal Booking &
-            Coupon Management System
-          </p>
+      <footer
+        className="py-6"
+        style={{ background: 'var(--bg-surface)', borderTop: '1px solid var(--border-default)' }}
+      >
+        <div className="container mx-auto px-4 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+          © {new Date().getFullYear()} MessBook — Smart Mess Booking &amp; Coupon System
         </div>
       </footer>
     </div>

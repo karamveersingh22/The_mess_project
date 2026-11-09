@@ -86,58 +86,96 @@ export default function AdminCouponsPage() {
   const dinnerCount = coupons.filter((c) => c.mealType === "DINNER").length;
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-7xl mx-auto pb-16">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Digital Coupon Administration</h1>
-        <p className="text-sm text-gray-600">
-          Track verified coupons issued to students. Use meal counts for daily kitchen quantity preparation.
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">🎫</span>
+          <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Digital Coupon & Pass Registry
+          </h1>
+        </div>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+          Track issued student coupons and 5-digit verification codes for kitchen capacity planning.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
           {error}
         </div>
       )}
 
       {/* KPI Cards */}
       <div className="grid gap-4 sm:grid-cols-4">
-        <Card>
-          <CardContent className="p-4">
-            <span className="text-xs text-gray-500 uppercase block font-semibold">Total Coupons Issued</span>
-            <span className="text-2xl font-black text-blue-900">{coupons.length}</span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <span className="text-xs text-gray-500 uppercase block font-semibold">Breakfast Coupons</span>
-            <span className="text-2xl font-black text-amber-600">{breakfastCount}</span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <span className="text-xs text-gray-500 uppercase block font-semibold">Lunch Coupons</span>
-            <span className="text-2xl font-black text-green-600">{lunchCount}</span>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4">
-            <span className="text-xs text-gray-500 uppercase block font-semibold">Dinner Coupons</span>
-            <span className="text-2xl font-black text-purple-600">{dinnerCount}</span>
-          </CardContent>
-        </Card>
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Total Passes
+          </span>
+          <span className="text-2xl font-black mt-1 block" style={{ color: 'var(--brand-blue)' }}>
+            {coupons.length}
+          </span>
+        </div>
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Breakfast Passes
+          </span>
+          <span className="text-2xl font-black mt-1 block" style={{ color: 'var(--brand-rose)' }}>
+            {breakfastCount}
+          </span>
+        </div>
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Lunch Passes
+          </span>
+          <span className="text-2xl font-black mt-1 block" style={{ color: 'var(--brand-blue)' }}>
+            {lunchCount}
+          </span>
+        </div>
+        <div
+          className="rounded-2xl p-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Dinner Passes
+          </span>
+          <span className="text-2xl font-black mt-1 block" style={{ color: 'var(--brand-slate)' }}>
+            {dinnerCount}
+          </span>
+        </div>
       </div>
 
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200">
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-2xl"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+      >
         <div className="flex items-center gap-3">
-          <span className="text-xs font-semibold text-gray-700">Filter Week:</span>
+          <span className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
+            Cycle:
+          </span>
           <select
             value={selectedWeekId}
             onChange={(e) => setSelectedWeekId(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-xs focus:border-blue-500 focus:outline-none"
+            className="rounded-lg px-3 py-1.5 text-xs font-bold transition-colors outline-none cursor-pointer"
+            style={{
+              background: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-default)'
+            }}
           >
-            <option value="ALL">All Weeks</option>
+            <option value="ALL">All Cycles</option>
             {weeks.map((w) => (
               <option key={w._id} value={w._id}>
                 {formatDate(w.startDate)} – {formatDate(w.endDate)}
@@ -146,16 +184,18 @@ export default function AdminCouponsPage() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 p-1 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
           {["ALL", "BREAKFAST", "LUNCH", "DINNER"].map((mt) => (
             <button
               key={mt}
               onClick={() => setMealTypeFilter(mt)}
-              className={`px-3 py-1 rounded-lg text-xs font-semibold transition-colors ${
-                mealTypeFilter === mt
-                  ? "bg-blue-900 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={mealTypeFilter === mt ? {
+                background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                color: '#FFFFFF',
+              } : {
+                color: 'var(--text-secondary)',
+              }}
             >
               {mt}
             </button>
@@ -166,52 +206,71 @@ export default function AdminCouponsPage() {
       {/* Coupon Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Issued Coupons ({coupons.length})</CardTitle>
+          <CardTitle>Issued Digital Passes ({coupons.length})</CardTitle>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-12 text-center text-gray-500">Loading coupons...</div>
+            <div className="p-12 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+              Loading coupons...
+            </div>
           ) : coupons.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No coupons issued for this selection.</div>
+            <div className="p-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              No coupons issued for this selection.
+            </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-600">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700 border-b">
+              <table className="w-full text-left text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <thead
+                  className="text-xs uppercase font-bold"
+                  style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-muted)' }}
+                >
                   <tr>
-                    <th className="px-6 py-3">5-Digit Code</th>
-                    <th className="px-6 py-3">Coupon Code</th>
-                    <th className="px-6 py-3">Student</th>
-                    <th className="px-6 py-3">Meal Type</th>
-                    <th className="px-6 py-3">Valid Date</th>
-                    <th className="px-6 py-3">Description</th>
-                    <th className="px-6 py-3">Status</th>
+                    <th className="px-6 py-3.5">5-Digit Counter Code</th>
+                    <th className="px-6 py-3.5">Coupon Ref</th>
+                    <th className="px-6 py-3.5">Student</th>
+                    <th className="px-6 py-3.5">Meal Type</th>
+                    <th className="px-6 py-3.5">Date</th>
+                    <th className="px-6 py-3.5">Menu Snapshot</th>
+                    <th className="px-6 py-3.5 text-right">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y" style={{ borderColor: 'var(--border-muted)' }}>
                   {coupons.map((c) => (
-                    <tr key={c._id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 font-mono font-black text-sm text-amber-900 bg-amber-50/50">
-                        {c.verificationCode || "—"}
+                    <tr
+                      key={c._id}
+                      className="transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    >
+                      <td className="px-6 py-4">
+                        <span
+                          className="font-mono text-sm font-black px-2.5 py-1 rounded-md"
+                          style={{ background: 'var(--bg-elevated)', color: 'var(--brand-blue)' }}
+                        >
+                          {c.verificationCode || "—"}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 font-mono font-bold text-xs text-blue-950">
+                      <td className="px-6 py-4 font-mono font-bold text-xs" style={{ color: 'var(--text-primary)' }}>
                         {c.couponCode}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-semibold text-gray-900">{c.studentId?.name}</div>
-                        <div className="text-xs text-gray-500 font-mono">
+                        <div className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>
+                          {c.studentId?.name || "Student"}
+                        </div>
+                        <div className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                           {c.studentId?.rollNumber}
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant="info">{c.mealType}</Badge>
+                        <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded" style={{ background: '#83A6CE20', color: 'var(--brand-blue)' }}>
+                          {c.mealType}
+                        </span>
                       </td>
-                      <td className="px-6 py-4 text-xs font-medium text-gray-900">
+                      <td className="px-6 py-4 text-xs font-semibold" style={{ color: 'var(--text-primary)' }}>
                         {formatDate(c.date)}
                       </td>
-                      <td className="px-6 py-4 text-xs max-w-xs truncate text-gray-600">
+                      <td className="px-6 py-4 text-xs max-w-xs truncate" style={{ color: 'var(--text-secondary)' }}>
                         {c.mealDescriptionSnapshot}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-right">
                         <Badge variant={getStatusVariant(c.status)}>{c.status}</Badge>
                       </td>
                     </tr>
@@ -225,4 +284,3 @@ export default function AdminCouponsPage() {
     </div>
   );
 }
-

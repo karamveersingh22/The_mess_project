@@ -64,138 +64,180 @@ export default function StudentDashboardPage() {
   }, []);
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
       {/* Welcome Header */}
-      <div className="rounded-2xl bg-blue-900 p-6 sm:p-8 text-white shadow-md">
-        <h1 className="text-2xl sm:text-3xl font-bold">
-          Welcome back, {user?.name || "Student"}!
-        </h1>
-        <p className="mt-2 text-blue-200 text-sm sm:text-base">
-          Roll Number: <span className="font-semibold text-white">{user?.rollNumber || "..."}</span> | College Mess Portal
-        </p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Link href="/student/booking">
-            <Button variant="secondary" size="md">
-              🍽️ Book Next Week&apos;s Meals
-            </Button>
-          </Link>
-          <Link href="/student/coupons">
-            <Button
-              variant="outline"
-              size="md"
-              className="border-white text-white hover:bg-blue-800"
-            >
-              🎫 View My Coupons
-            </Button>
-          </Link>
+      <div
+        className="rounded-2xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden"
+        style={{
+          background: 'linear-gradient(135deg, #0D1E4C 0%, #26415E 70%, #0B1B32 100%)',
+          border: '1.5px solid #83A6CE33',
+        }}
+      >
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold mb-3 bg-white/10 text-white border border-white/15">
+              <span>🎓</span>
+              <span>Student Portal</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
+              Welcome back, {user?.name || "Student"}!
+            </h1>
+            <p className="mt-1 text-sm text-slate-300">
+              Roll Number: <span className="font-bold text-white">{user?.rollNumber || "..."}</span> • College Hostel & Mess
+            </p>
+          </div>
+
+          <div className="flex flex-wrap gap-3">
+            <Link href="/student/booking">
+              <Button
+                size="md"
+                className="font-bold shadow-lg"
+                style={{ background: '#FFFFFF', color: '#0D1E4C' }}
+              >
+                🍽️ Book Next Week&apos;s Meals
+              </Button>
+            </Link>
+            <Link href="/student/coupons">
+              <Button
+                size="md"
+                className="font-bold hover:opacity-90"
+                style={{
+                  background: 'rgba(255,255,255,0.12)',
+                  border: '1.5px solid rgba(255,255,255,0.45)',
+                  color: '#FFFFFF'
+                }}
+              >
+                🎫 View My Passes
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Quick Summary Cards */}
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Active Booking
-            </span>
-          </CardHeader>
-          <CardContent>
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+        {/* Active Booking */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Active Booking
+          </span>
+          <div className="mt-3">
             {loading ? (
-              <div className="text-gray-400 text-sm">Loading...</div>
+              <div className="text-xs" style={{ color: 'var(--text-muted)' }}>Loading...</div>
             ) : metrics?.activeBooking ? (
               <div>
-                <div className="flex items-center gap-2 mb-1">
+                <div className="flex items-center gap-2 mb-1.5">
                   <Badge variant={getStatusVariant(metrics.activeBooking.status)}>
                     {metrics.activeBooking.status}
                   </Badge>
-                  <span className="text-xs font-mono font-bold text-gray-700">
+                  <span className="text-xs font-mono font-bold" style={{ color: 'var(--text-primary)' }}>
                     {metrics.activeBooking.bookingCode}
                   </span>
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs font-bold" style={{ color: 'var(--brand-blue)' }}>
                   ₹{metrics.activeBooking.totalAmount} ({metrics.activeBooking.totalMeals} meals)
                 </p>
               </div>
             ) : (
               <div>
-                <div className="text-lg font-bold text-gray-700">None Active</div>
-                <p className="mt-1 text-xs text-gray-500">
+                <div className="text-base font-bold" style={{ color: 'var(--text-primary)' }}>None Active</div>
+                <p className="mt-1 text-xs" style={{ color: 'var(--text-muted)' }}>
                   Select meals for upcoming cycle
                 </p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Available Coupons
-            </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-3xl font-black text-blue-900">
+        {/* Available Passes */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Available Passes
+          </span>
+          <div className="mt-2 flex items-baseline gap-2">
+            <span className="text-3xl font-black" style={{ color: 'var(--brand-blue)' }}>
               {loading ? "..." : metrics?.couponCount ?? 0}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Active digital passes
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Minimum Booking
             </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+            <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>passes issued</span>
+          </div>
+          <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Ready for counter check-in
+          </p>
+        </div>
+
+        {/* Minimum Booking */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Minimum Booking
+          </span>
+          <div className="mt-2 flex items-baseline gap-1">
+            <span className="text-3xl font-black" style={{ color: 'var(--text-primary)' }}>
               ₹{metrics?.prices.minimumBookingAmount ?? 300}
-            </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Per weekly cycle
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Standard Rates
             </span>
-          </CardHeader>
-          <CardContent>
-            <div className="text-xs font-semibold text-gray-900">
-              B: ₹{metrics?.prices.breakfast ?? 25} | L: ₹{metrics?.prices.lunch ?? 45} | D: ₹{metrics?.prices.dinner ?? 40}
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>/ cycle</span>
+          </div>
+          <p className="mt-1 text-xs" style={{ color: 'var(--text-secondary)' }}>
+            Required threshold per week
+          </p>
+        </div>
+
+        {/* Standard Rates */}
+        <div
+          className="rounded-2xl p-5 shadow-sm transition-all"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+        >
+          <span className="text-[10px] font-bold uppercase tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+            Meal Rates
+          </span>
+          <div className="mt-2 space-y-1">
+            <div className="flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+              <span>Breakfast:</span>
+              <span style={{ color: 'var(--brand-rose)' }}>₹{metrics?.prices.breakfast ?? 25}</span>
             </div>
-            <p className="mt-1 text-xs text-gray-500">
-              Per meal rates
-            </p>
-          </CardContent>
-        </Card>
+            <div className="flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+              <span>Lunch:</span>
+              <span style={{ color: 'var(--brand-blue)' }}>₹{metrics?.prices.lunch ?? 45}</span>
+            </div>
+            <div className="flex items-center justify-between text-xs font-bold" style={{ color: 'var(--text-primary)' }}>
+              <span>Dinner:</span>
+              <span style={{ color: 'var(--brand-slate)' }}>₹{metrics?.prices.dinner ?? 40}</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Active Week Banner */}
       {metrics?.activeWeek && (
-        <div className="rounded-xl bg-white p-4 border border-blue-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div
+          className="rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 shadow-sm"
+          style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-brand)' }}
+        >
           <div>
-            <span className="text-xs uppercase font-bold text-blue-900 block">
-              Active Mess Week
+            <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--brand-blue)' }}>
+              Current Active Mess Cycle
             </span>
-            <span className="text-base font-bold text-gray-900">
+            <span className="text-base font-extrabold mt-0.5 block" style={{ color: 'var(--text-primary)' }}>
               {formatDate(metrics.activeWeek.startDate)} – {formatDate(metrics.activeWeek.endDate)}
             </span>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <Link href="/student/menu">
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="secondary">
                 View Weekly Menu
               </Button>
             </Link>
             <Link href="/student/booking">
               <Button size="sm">
-                Book This Week
+                Book This Week →
               </Button>
             </Link>
           </div>
@@ -208,12 +250,12 @@ export default function StudentDashboardPage() {
           <CardHeader>
             <CardTitle>Physical Payment Workflow</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-gray-600">
-              After submitting your meal booking online, visit the mess administration office in person to pay the exact cash amount.
+          <CardContent className="space-y-3">
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              After selecting your preferred meals and submitting your booking online, visit the mess administrative counter in person to deposit the exact cash amount.
             </p>
-            <p className="text-sm text-gray-600">
-              The mess admin will verify the physical cash and click approve. Your digital coupons will appear immediately under &quot;My Coupons&quot;.
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              The mess cashier will verify your booking reference ID and click approve. Digital coupons and 5-digit attendance codes are issued instantly upon approval.
             </p>
             <div className="pt-2">
               <Link href="/student/history">
@@ -227,14 +269,14 @@ export default function StudentDashboardPage() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Mess Coupon Counter Verification</CardTitle>
+            <CardTitle>Mess Counter Attendance Tracker</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            <p className="text-sm text-gray-600">
-              No paper slips required! Simply open the &quot;My Coupons&quot; page on your mobile device and present the digital coupon pass to the mess staff at meal time.
+          <CardContent className="space-y-3">
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Zero paper coupons needed! Simply open your mobile phone and view &quot;My Passes&quot; to see your 5-digit verification code for today&apos;s meal.
             </p>
-            <p className="text-sm text-gray-600">
-              Each coupon displays your student details, date, and selected alternative (e.g. Chicken or Paneer).
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+              Tell this code to the server at the gate. The admin enters the 5 digits to mark attendance and hand over your plate.
             </p>
             <div className="pt-2">
               <Link href="/student/coupons">

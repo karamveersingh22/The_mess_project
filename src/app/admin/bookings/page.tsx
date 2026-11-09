@@ -87,21 +87,19 @@ export default function AdminBookingsPage() {
   }, [fetchBookings]);
 
   async function handleApprove(bookingId: string) {
-    if (!confirm("Confirm physical cash payment has been received and approve this booking?")) {
-      return;
-    }
-
+    if (!confirm("Confirm that cash has been physically received at the counter? This will issue coupons.")) return;
     setActionLoading(true);
     setError(null);
     setSuccess(null);
-
     try {
-      const res = await fetch(`/api/admin/bookings/${bookingId}/approve`, {
-        method: "POST",
+      const res = await fetch(`/api/admin/bookings/${bookingId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "APPROVE" }),
       });
       const data = await res.json();
       if (data.success) {
-        setSuccess(data.message || "Payment verified and booking approved!");
+        setSuccess(`Booking ${data.data.booking.bookingCode} approved! ${data.data.couponsCreated} coupons generated.`);
         fetchBookings();
       } else {
         setError(data.error || "Approval failed");
@@ -115,21 +113,22 @@ export default function AdminBookingsPage() {
 
   async function handleRejectSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!rejectingBooking || !rejectionReason.trim()) return;
-
+    if (!rejectingBooking) return;
+    if (!rejectionReason.trim()) {
+      setError("Please provide a rejection reason");
+      return;
+    }
     setActionLoading(true);
     setError(null);
-    setSuccess(null);
-
     try {
-      const res = await fetch(`/api/admin/bookings/${rejectingBooking._id}/reject`, {
-        method: "POST",
+      const res = await fetch(`/api/admin/bookings/${rejectingBooking._id}`, {
+        method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ reason: rejectionReason.trim() }),
+        body: JSON.stringify({ action: "REJECT", rejectionReason }),
       });
       const data = await res.json();
       if (data.success) {
-        setSuccess("Booking request rejected");
+        setSuccess(`Booking ${rejectingBooking.bookingCode} was rejected.`);
         setRejectingBooking(null);
         setRejectionReason("");
         fetchBookings();
@@ -143,12 +142,12 @@ export default function AdminBookingsPage() {
     }
   }
 
-  async function handleViewDetails(b: AdminBooking) {
-    setViewingBooking(b);
+  async function handleViewDetails(booking: AdminBooking) {
+    setViewingBooking(booking);
     setLoadingItems(true);
     setItems([]);
     try {
-      const res = await fetch(`/api/bookings/${b._id}`);
+      const res = await fetch(`/api/admin/bookings/${booking._id}`);
       const data = await res.json();
       if (data.success && data.data?.items) {
         setItems(data.data.items);
@@ -161,50 +160,66 @@ export default function AdminBookingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
+      {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Meal Booking Requests & Verification</h1>
-        <p className="text-sm text-gray-600">
-          Review student meal requests, verify physical cash payments, and issue digital coupons through approval.
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">💵</span>
+          <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Physical Cash & Booking Approvals
+          </h1>
+        </div>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+          Review pending student meal orders, verify physical cash deposit at the desk, and issue coupons.
         </p>
       </div>
 
-      {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          {error}
-        </div>
-      )}
-
       {success && (
-        <div className="rounded-lg bg-green-50 p-4 text-sm text-green-700 border border-green-200">
-          {success}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-text)' }}
+        >
+          ✓ {success}
         </div>
       )}
 
-      {/* Filters & Search */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200">
-        <div className="flex flex-wrap items-center gap-2">
+      {error && (
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
+          ✕ {error}
+        </div>
+      )}
+
+      {/* Filter and Search Bar */}
+      <div
+        className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 rounded-2xl"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+      >
+        <div className="flex items-center gap-1.5 p-1 rounded-xl" style={{ background: 'var(--bg-elevated)' }}>
           {["ALL", "PENDING", "APPROVED", "REJECTED"].map((st) => (
             <button
               key={st}
               onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                statusFilter === st
-                  ? "bg-blue-900 text-white"
-                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-              }`}
+              className="px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+              style={statusFilter === st ? {
+                background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                color: '#FFFFFF',
+              } : {
+                color: 'var(--text-secondary)',
+              }}
             >
               {st}
             </button>
           ))}
         </div>
 
-        <div className="flex items-center gap-2 max-w-sm w-full">
+        <div className="w-full sm:w-72">
           <Input
-            placeholder="Search by student name or roll number..."
+            placeholder="Search student or code..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="text-xs"
           />
         </div>
       </div>
@@ -212,89 +227,101 @@ export default function AdminBookingsPage() {
       {/* Bookings Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Booking Requests ({bookings.length})</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Bookings ({bookings.length})</CardTitle>
+            <Button size="sm" variant="secondary" onClick={fetchBookings}>
+              Refresh
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           {loading ? (
-            <div className="p-12 text-center text-gray-500">Loading bookings...</div>
+            <div className="p-12 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+              Loading bookings...
+            </div>
           ) : bookings.length === 0 ? (
-            <div className="p-12 text-center text-gray-500">No booking requests found.</div>
+            <div className="p-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+              No bookings matched the filter criteria.
+            </div>
           ) : (
             <div className="overflow-x-auto">
-              <table className="w-full text-left text-sm text-gray-600">
-                <thead className="bg-gray-50 text-xs uppercase text-gray-700 border-b">
+              <table className="w-full text-left text-sm" style={{ color: 'var(--text-secondary)' }}>
+                <thead
+                  className="text-xs uppercase font-bold"
+                  style={{ background: 'var(--bg-elevated)', color: 'var(--text-muted)', borderBottom: '1px solid var(--border-muted)' }}
+                >
                   <tr>
-                    <th className="px-6 py-3">Student</th>
-                    <th className="px-6 py-3">Booking Code</th>
-                    <th className="px-6 py-3">Week</th>
-                    <th className="px-6 py-3">Amount</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Payment</th>
-                    <th className="px-6 py-3">Submitted</th>
-                    <th className="px-6 py-3">Actions</th>
+                    <th className="px-6 py-3.5">Booking Ref</th>
+                    <th className="px-6 py-3.5">Student</th>
+                    <th className="px-6 py-3.5">Cycle</th>
+                    <th className="px-6 py-3.5">Amount</th>
+                    <th className="px-6 py-3.5">Status</th>
+                    <th className="px-6 py-3.5">Payment</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100">
+                <tbody className="divide-y" style={{ borderColor: 'var(--border-muted)' }}>
                   {bookings.map((b) => (
-                    <tr key={b._id} className="hover:bg-gray-50">
+                    <tr
+                      key={b._id}
+                      className="transition-colors hover:bg-black/5 dark:hover:bg-white/5"
+                    >
+                      <td className="px-6 py-4 font-mono font-bold" style={{ color: 'var(--brand-blue)' }}>
+                        {b.bookingCode}
+                      </td>
                       <td className="px-6 py-4">
-                        <div className="font-bold text-gray-900">{b.studentId?.name}</div>
-                        <div className="text-xs text-gray-500 font-mono">
+                        <div className="font-bold text-xs" style={{ color: 'var(--text-primary)' }}>
+                          {b.studentId?.name || "Student"}
+                        </div>
+                        <div className="text-[11px] font-mono" style={{ color: 'var(--text-muted)' }}>
                           {b.studentId?.rollNumber}
                         </div>
                       </td>
-                      <td className="px-6 py-4 font-mono text-xs font-bold text-blue-900">
-                        {b.bookingCode}
-                      </td>
-                      <td className="px-6 py-4 text-xs">
-                        {b.weekId ? (
-                          <span>{formatDate(b.weekId.startDate)} – {formatDate(b.weekId.endDate)}</span>
-                        ) : (
-                          "Cycle"
-                        )}
+                      <td className="px-6 py-4 text-xs font-medium">
+                        {b.weekId ? `${formatDate(b.weekId.startDate)} – ${formatDate(b.weekId.endDate)}` : "Week"}
                       </td>
                       <td className="px-6 py-4">
-                        <div className="font-extrabold text-gray-900">₹{b.totalAmount}</div>
-                        <div className="text-xs text-gray-400">{b.totalMeals} meals</div>
+                        <div className="font-black text-sm" style={{ color: 'var(--text-primary)' }}>
+                          ₹{b.totalAmount}
+                        </div>
+                        <div className="text-[10px]" style={{ color: 'var(--text-muted)' }}>
+                          {b.totalMeals} meals
+                        </div>
                       </td>
                       <td className="px-6 py-4">
-                        <Badge variant={getStatusVariant(b.status)}>{b.status}</Badge>
+                        <Badge variant={getStatusVariant(b.status)}>
+                          {b.status}
+                        </Badge>
                       </td>
                       <td className="px-6 py-4">
                         <Badge variant={getStatusVariant(b.paymentStatus)}>
                           {b.paymentStatus}
                         </Badge>
                       </td>
-                      <td className="px-6 py-4 text-xs text-gray-500">
-                        {new Date(b.submittedAt).toLocaleDateString()}
-                      </td>
-                      <td className="px-6 py-4">
-                        <div className="flex items-center gap-1.5">
+                      <td className="px-6 py-4 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
                           <Button
                             size="sm"
                             variant="secondary"
                             onClick={() => handleViewDetails(b)}
                           >
-                            View
+                            Items
                           </Button>
-
                           {b.status === "PENDING" && (
                             <>
                               <Button
                                 size="sm"
                                 variant="success"
                                 onClick={() => handleApprove(b._id)}
-                                isLoading={actionLoading}
+                                disabled={actionLoading}
                               >
-                                Verify & Approve
+                                ✓ Collect & Approve
                               </Button>
                               <Button
                                 size="sm"
                                 variant="danger"
-                                onClick={() => {
-                                  setRejectingBooking(b);
-                                  setRejectionReason("");
-                                }}
+                                onClick={() => setRejectingBooking(b)}
+                                disabled={actionLoading}
                               >
                                 Reject
                               </Button>
@@ -313,29 +340,34 @@ export default function AdminBookingsPage() {
 
       {/* Reject Modal */}
       {rejectingBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
-            <h2 className="text-lg font-bold text-gray-900 mb-2">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ background: 'rgba(0,0,0,0.65)' }}>
+          <div
+            className="w-full max-w-md rounded-2xl p-6 shadow-2xl"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+          >
+            <h3 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>
               Reject Booking ({rejectingBooking.bookingCode})
-            </h2>
-            <p className="text-xs text-gray-600 mb-4">
-              Student: {rejectingBooking.studentId?.name} ({rejectingBooking.studentId?.rollNumber})
+            </h3>
+            <p className="text-xs mt-1" style={{ color: 'var(--text-secondary)' }}>
+              Provide a clear reason for rejecting this booking (e.g. incorrect payment amount).
             </p>
-            <form onSubmit={handleRejectSubmit} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Reason for Rejection *
-                </label>
-                <textarea
-                  value={rejectionReason}
-                  onChange={(e) => setRejectionReason(e.target.value)}
-                  placeholder="e.g. Payment not received, incorrect cash amount..."
-                  required
-                  rows={3}
-                  className="w-full rounded-lg border border-gray-300 p-2.5 text-sm focus:border-red-500 focus:outline-none"
-                />
-              </div>
-              <div className="flex justify-end gap-3 pt-2">
+
+            <form onSubmit={handleRejectSubmit} className="mt-4 space-y-4">
+              <textarea
+                value={rejectionReason}
+                onChange={(e) => setRejectionReason(e.target.value)}
+                placeholder="Reason for rejection..."
+                rows={3}
+                required
+                className="w-full rounded-xl p-3 text-xs outline-none transition-all"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-default)',
+                  color: 'var(--text-primary)',
+                }}
+              />
+
+              <div className="flex justify-end gap-2">
                 <Button
                   type="button"
                   variant="secondary"
@@ -344,7 +376,7 @@ export default function AdminBookingsPage() {
                   Cancel
                 </Button>
                 <Button type="submit" variant="danger" isLoading={actionLoading}>
-                  Confirm Rejection
+                  Confirm Reject
                 </Button>
               </div>
             </form>
@@ -352,22 +384,26 @@ export default function AdminBookingsPage() {
         </div>
       )}
 
-      {/* View Details Modal */}
+      {/* View Items Modal */}
       {viewingBooking && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-2xl max-h-[90vh] flex flex-col">
-            <div className="flex items-center justify-between pb-4 border-b">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm" style={{ background: 'rgba(0,0,0,0.65)' }}>
+          <div
+            className="w-full max-w-2xl rounded-2xl p-6 shadow-2xl max-h-[90vh] flex flex-col"
+            style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+          >
+            <div className="flex items-center justify-between pb-4 border-b" style={{ borderColor: 'var(--border-muted)' }}>
               <div>
-                <h2 className="text-lg font-bold text-gray-900">
-                  {viewingBooking.studentId?.name} — {viewingBooking.bookingCode}
+                <h2 className="text-lg font-black" style={{ color: 'var(--text-primary)' }}>
+                  Booking Items ({viewingBooking.bookingCode})
                 </h2>
-                <p className="text-xs text-gray-500">
-                  Roll: {viewingBooking.studentId?.rollNumber} | Total: ₹{viewingBooking.totalAmount} ({viewingBooking.totalMeals} meals)
+                <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Student: {viewingBooking.studentId?.name} ({viewingBooking.studentId?.rollNumber})
                 </p>
               </div>
               <button
                 onClick={() => setViewingBooking(null)}
-                className="text-gray-400 hover:text-gray-600 text-lg font-bold"
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold opacity-70 hover:opacity-100"
+                style={{ background: 'var(--bg-elevated)', color: 'var(--text-primary)' }}
               >
                 ✕
               </button>
@@ -375,28 +411,39 @@ export default function AdminBookingsPage() {
 
             <div className="flex-1 overflow-y-auto py-4">
               {loadingItems ? (
-                <div className="p-8 text-center text-gray-500">Loading meals...</div>
+                <div className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                  Loading meal items...
+                </div>
               ) : items.length === 0 ? (
-                <div className="p-8 text-center text-gray-500">No meal items recorded</div>
+                <div className="p-8 text-center text-xs" style={{ color: 'var(--text-muted)' }}>
+                  No items found
+                </div>
               ) : (
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y" style={{ borderColor: 'var(--border-muted)' }}>
                   {items.map((item) => (
-                    <div key={item._id} className="py-2.5 flex items-center justify-between text-xs">
+                    <div key={item._id} className="py-3 flex items-center justify-between">
                       <div>
-                        <span className="font-bold text-blue-900 uppercase mr-2">
-                          {item.mealType}
-                        </span>
-                        <span className="text-gray-500 mr-2">
-                          ({formatDate(item.date)})
-                        </span>
-                        <span className="text-gray-800">{item.mealDescriptionSnapshot}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded" style={{ background: '#83A6CE20', color: 'var(--brand-blue)' }}>
+                            {item.mealType}
+                          </span>
+                          <span className="text-xs font-semibold" style={{ color: 'var(--text-muted)' }}>
+                            • {formatDate(item.date)}
+                          </span>
+                        </div>
+                        <p className="text-xs font-medium mt-1" style={{ color: 'var(--text-primary)' }}>
+                          {item.mealDescriptionSnapshot}
+                        </p>
                         {item.selectedOption && (
-                          <span className="ml-2 font-medium text-amber-900 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200">
+                          <span
+                            className="text-[11px] font-bold px-2 py-0.5 rounded-md mt-1 inline-block"
+                            style={{ background: 'var(--bg-elevated)', color: 'var(--text-secondary)', border: '1px solid var(--border-muted)' }}
+                          >
                             Choice: {item.selectedOption}
                           </span>
                         )}
                       </div>
-                      <span className="font-bold text-gray-900 ml-4">
+                      <span className="font-black text-sm ml-4" style={{ color: 'var(--text-primary)' }}>
                         ₹{item.priceAtBooking}
                       </span>
                     </div>
@@ -405,7 +452,15 @@ export default function AdminBookingsPage() {
               )}
             </div>
 
-            <div className="pt-4 border-t flex justify-end">
+            <div className="pt-4 border-t flex items-center justify-between" style={{ borderColor: 'var(--border-muted)' }}>
+              <div>
+                <span className="text-[10px] uppercase font-bold tracking-wider block" style={{ color: 'var(--text-muted)' }}>
+                  Total Collected
+                </span>
+                <div className="text-xl font-black" style={{ color: 'var(--brand-blue)' }}>
+                  ₹{viewingBooking.totalAmount}
+                </div>
+              </div>
               <Button onClick={() => setViewingBooking(null)}>Close</Button>
             </div>
           </div>
@@ -414,4 +469,3 @@ export default function AdminBookingsPage() {
     </div>
   );
 }
-

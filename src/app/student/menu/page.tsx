@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { formatDate } from "@/lib/utils";
@@ -44,6 +44,7 @@ export default function StudentMenuViewPage() {
   const [weeks, setWeeks] = useState<WeekItem[]>([]);
   const [selectedWeekId, setSelectedWeekId] = useState<string>("");
   const [days, setDays] = useState<DayMenu[]>([]);
+  const [activeDayTab, setActiveDayTab] = useState<string>("ALL");
   const [prices, setPrices] = useState<PriceConfig>({
     breakfastPrice: DEFAULT_PRICES.breakfast,
     lunchPrice: DEFAULT_PRICES.lunch,
@@ -60,7 +61,6 @@ export default function StudentMenuViewPage() {
         const data = await res.json();
         if (data.success && data.data.length > 0) {
           setWeeks(data.data);
-          // Prefer OPEN week if available
           const openWeek = data.data.find((w: WeekItem) => w.status === "OPEN");
           setSelectedWeekId(openWeek ? openWeek._id : data.data[0]._id);
         }
@@ -110,18 +110,28 @@ export default function StudentMenuViewPage() {
 
   const activeWeek = weeks.find((w) => w._id === selectedWeekId);
 
+  const displayedDays = activeDayTab === "ALL"
+    ? days
+    : days.filter((d) => d.dayOfWeek.toUpperCase() === activeDayTab);
+
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto pb-16">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Weekly Mess Menu</h1>
-          <p className="text-sm text-gray-600">
-            Browse daily meals, check specials, and plan your weekly meal bookings.
+          <div className="flex items-center gap-2">
+            <span className="text-2xl">📋</span>
+            <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+              Weekly Mess Menu
+            </h1>
+          </div>
+          <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+            Explore scheduled daily meals, specials, and pricing for this week.
           </p>
         </div>
         {activeWeek?.status === "OPEN" && (
           <Link href="/student/booking">
-            <Button size="lg">
+            <Button size="lg" className="font-bold shadow-md">
               🍽️ Book Meals for This Week →
             </Button>
           </Link>
@@ -129,19 +139,32 @@ export default function StudentMenuViewPage() {
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
+        <div
+          className="p-4 rounded-xl text-sm font-medium"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
           {error}
         </div>
       )}
 
       {/* Week Selector & Rate Banner */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-white p-4 rounded-xl border border-gray-200">
+      <div
+        className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 p-4 rounded-2xl"
+        style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-default)' }}
+      >
         <div className="flex items-center gap-3">
-          <span className="text-sm font-semibold text-gray-700">Select Week:</span>
+          <span className="text-xs font-bold uppercase tracking-wide" style={{ color: 'var(--text-muted)' }}>
+            Select Cycle:
+          </span>
           <select
             value={selectedWeekId}
             onChange={(e) => setSelectedWeekId(e.target.value)}
-            className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm focus:border-blue-500 focus:outline-none"
+            className="rounded-lg px-3 py-1.5 text-xs font-bold transition-colors outline-none cursor-pointer"
+            style={{
+              background: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              border: '1px solid var(--border-default)'
+            }}
           >
             {weeks.map((w) => (
               <option key={w._id} value={w._id}>
@@ -151,69 +174,161 @@ export default function StudentMenuViewPage() {
           </select>
         </div>
 
-        <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-600">
-          <div>Breakfast: <span className="text-blue-900 font-bold">₹{prices.breakfastPrice}</span></div>
-          <div>Lunch: <span className="text-blue-900 font-bold">₹{prices.lunchPrice}</span></div>
-          <div>Dinner: <span className="text-blue-900 font-bold">₹{prices.dinnerPrice}</span></div>
-          <div>Min Booking: <span className="text-blue-900 font-bold">₹{prices.minimumBookingAmount}</span></div>
+        {/* Price tags */}
+        <div className="flex flex-wrap items-center gap-3 text-xs font-bold">
+          <span className="px-2.5 py-1 rounded-lg" style={{ background: '#C48CB320', color: 'var(--text-primary)' }}>
+            Breakfast: ₹{prices.breakfastPrice}
+          </span>
+          <span className="px-2.5 py-1 rounded-lg" style={{ background: '#83A6CE20', color: 'var(--text-primary)' }}>
+            Lunch: ₹{prices.lunchPrice}
+          </span>
+          <span className="px-2.5 py-1 rounded-lg" style={{ background: '#26415E20', color: 'var(--text-primary)' }}>
+            Dinner: ₹{prices.dinnerPrice}
+          </span>
+          <span className="px-2.5 py-1 rounded-lg" style={{ background: 'var(--bg-muted)', color: 'var(--text-muted)' }}>
+            Min: ₹{prices.minimumBookingAmount}
+          </span>
         </div>
       </div>
 
+      {/* Day Navigation Tabs */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 no-scrollbar">
+        <button
+          type="button"
+          onClick={() => setActiveDayTab("ALL")}
+          className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+          style={activeDayTab === "ALL" ? {
+            background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+            color: '#FFFFFF',
+            boxShadow: '0 2px 8px rgba(13,30,76,0.25)',
+          } : {
+            background: 'var(--bg-surface)',
+            color: 'var(--text-secondary)',
+            border: '1px solid var(--border-default)',
+          }}
+        >
+          Entire Week
+        </button>
+        {days.map((day) => {
+          const isActive = activeDayTab === day.dayOfWeek.toUpperCase();
+          return (
+            <button
+              key={day.dayOfWeek}
+              type="button"
+              onClick={() => setActiveDayTab(day.dayOfWeek.toUpperCase())}
+              className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap"
+              style={isActive ? {
+                background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                color: '#FFFFFF',
+                boxShadow: '0 2px 8px rgba(13,30,76,0.25)',
+              } : {
+                background: 'var(--bg-surface)',
+                color: 'var(--text-secondary)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              {day.dayOfWeek}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Menu Cards */}
       {loading ? (
-        <div className="p-12 text-center text-gray-500">Loading menu...</div>
+        <div className="p-16 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+          Loading menu details...
+        </div>
       ) : days.length === 0 ? (
         <Card>
-          <CardContent className="p-12 text-center text-gray-500">
+          <CardContent className="p-16 text-center" style={{ color: 'var(--text-muted)' }}>
             No menu configured for this week yet. Please check back soon or choose another week.
           </CardContent>
         </Card>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          {days.map((day) => (
-            <Card key={day.dayOfWeek} className="overflow-hidden flex flex-col">
-              <CardHeader className="bg-blue-900 text-white py-3 px-4">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-base">{day.dayOfWeek}</span>
-                  <span className="text-xs text-blue-200">{formatDate(day.date)}</span>
-                </div>
-              </CardHeader>
-              <CardContent className="p-4 space-y-4 flex-1">
+          {displayedDays.map((day) => (
+            <div
+              key={day.dayOfWeek}
+              className="rounded-2xl overflow-hidden flex flex-col justify-between transition-all"
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-default)',
+              }}
+            >
+              {/* Day Header */}
+              <div
+                className="px-5 py-3.5 flex items-center justify-between"
+                style={{
+                  background: 'linear-gradient(135deg, var(--brand-navy), var(--brand-slate))',
+                  color: '#FFFFFF',
+                }}
+              >
+                <span className="font-extrabold text-sm">{day.dayOfWeek}</span>
+                <span className="text-xs opacity-80">{formatDate(day.date)}</span>
+              </div>
+
+              {/* Day Meals Content */}
+              <div className="p-5 space-y-4 flex-1">
                 {day.meals.map((meal) => {
                   let price = prices.breakfastPrice;
-                  if (meal.mealType === "LUNCH") price = prices.lunchPrice;
-                  if (meal.mealType === "DINNER") price = prices.dinnerPrice;
+                  let badgeAccent = '#C48CB3';
+                  let icon = '🌅';
+                  if (meal.mealType === "LUNCH") {
+                    price = prices.lunchPrice;
+                    badgeAccent = '#83A6CE';
+                    icon = '☀️';
+                  }
+                  if (meal.mealType === "DINNER") {
+                    price = prices.dinnerPrice;
+                    badgeAccent = '#26415E';
+                    icon = '🌙';
+                  }
 
                   return (
                     <div
                       key={meal.mealType}
-                      className="border-b border-gray-100 last:border-0 pb-3 last:pb-0"
+                      className="pb-3.5 border-b last:border-0 last:pb-0"
+                      style={{ borderColor: 'var(--border-muted)' }}
                     >
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="text-xs font-bold uppercase tracking-wider text-blue-900">
+                      <div className="flex items-center justify-between mb-1.5">
+                        <span
+                          className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-md flex items-center gap-1"
+                          style={{ background: `${badgeAccent}20`, color: badgeAccent }}
+                        >
+                          <span>{icon}</span>
                           {meal.mealType}
                         </span>
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-gray-700">₹{price}</span>
+                          <span className="text-xs font-black" style={{ color: 'var(--text-primary)' }}>
+                            ₹{price}
+                          </span>
                           {!meal.isAvailable && (
                             <Badge variant="danger">Unavailable</Badge>
                           )}
                         </div>
                       </div>
 
-                      <p className="text-sm text-gray-700 leading-relaxed">
-                        {meal.description}
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
+                        {meal.description || "Regular meal offering"}
                       </p>
 
+                      {/* Options / choices */}
                       {meal.options && meal.options.length > 0 && (
-                        <div className="mt-2 rounded bg-amber-50 p-2 border border-amber-200/60">
-                          <span className="text-xs font-semibold text-amber-900 block mb-1">
-                            Available Choices:
+                        <div
+                          className="mt-2.5 rounded-lg p-2.5"
+                          style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-muted)' }}
+                        >
+                          <span className="text-[10px] font-bold uppercase tracking-wider block mb-1" style={{ color: 'var(--text-muted)' }}>
+                            Special Choices:
                           </span>
-                          <ul className="text-xs text-amber-800 list-disc list-inside space-y-0.5">
+                          <ul className="text-xs space-y-1" style={{ color: 'var(--text-primary)' }}>
                             {meal.options.map((opt, i) => (
-                              <li key={i}>
-                                <span className="font-medium">{opt.label}</span>
-                                {opt.description && ` — ${opt.description}`}
+                              <li key={i} className="flex items-start gap-1.5">
+                                <span style={{ color: 'var(--brand-blue)' }}>•</span>
+                                <span className="font-semibold">{opt.label}</span>
+                                {opt.description && (
+                                  <span style={{ color: 'var(--text-muted)' }}>— {opt.description}</span>
+                                )}
                               </li>
                             ))}
                           </ul>
@@ -222,12 +337,27 @@ export default function StudentMenuViewPage() {
                     </div>
                   );
                 })}
-              </CardContent>
-            </Card>
+              </div>
+
+              {/* Card Footer action */}
+              {activeWeek?.status === "OPEN" && (
+                <div
+                  className="px-5 py-3 border-t text-right"
+                  style={{ background: 'var(--bg-elevated)', borderColor: 'var(--border-muted)' }}
+                >
+                  <Link
+                    href="/student/booking"
+                    className="text-xs font-bold inline-flex items-center gap-1 hover:underline"
+                    style={{ color: 'var(--brand-blue)' }}
+                  >
+                    Select for this day →
+                  </Link>
+                </div>
+              )}
+            </div>
           ))}
         </div>
       )}
     </div>
   );
 }
-

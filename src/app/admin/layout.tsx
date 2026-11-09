@@ -26,12 +26,12 @@ export default async function AdminLayout({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-gray-50">
+    <div className="flex min-h-screen flex-col" style={{ background: 'var(--bg-base)' }}>
       <Navbar user={{ name: `${user.name} (Admin)`, role: user.role }} />
       <MobileNav links={adminLinks} />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar links={adminLinks} title="Mess Administration" />
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">{children}</main>
+        <main className="flex-1 p-4 md:p-6 overflow-y-auto max-h-[calc(100vh-56px)]">{children}</main>
       </div>
     </div>
   );

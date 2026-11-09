@@ -2,63 +2,34 @@ import { cn } from "@/lib/utils";
 
 type BadgeVariant = "default" | "success" | "warning" | "danger" | "info";
 
-interface BadgeProps {
-  children: React.ReactNode;
-  variant?: BadgeVariant;
-  className?: string;
-}
+interface BadgeProps { children: React.ReactNode; variant?: BadgeVariant; className?: string; }
 
-export function Badge({
-  children,
-  variant = "default",
-  className,
-}: BadgeProps) {
-  const variantStyles: Record<BadgeVariant, string> = {
-    default: "bg-gray-100 text-gray-700",
-    success: "bg-green-100 text-green-800",
-    warning: "bg-amber-100 text-amber-800",
-    danger: "bg-red-100 text-red-800",
-    info: "bg-blue-100 text-blue-800",
+export function Badge({ children, variant = "default", className }: BadgeProps) {
+  const styles: Record<BadgeVariant, React.CSSProperties> = {
+    default: { background: 'var(--bg-muted)', color: 'var(--text-secondary)', border: '1px solid var(--border-default)' },
+    success: { background: 'var(--success-bg)', color: 'var(--success-text)', border: '1px solid var(--success-border)' },
+    warning: { background: 'var(--warning-bg)', color: 'var(--warning-text)', border: '1px solid var(--warning-border)' },
+    danger: { background: 'var(--danger-bg)', color: 'var(--danger-text)', border: '1px solid var(--danger-border)' },
+    info: { background: 'var(--info-bg)', color: 'var(--info-text)', border: '1px solid var(--info-border)' },
   };
 
   return (
     <span
-      className={cn(
-        "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium",
-        variantStyles[variant],
-        className
-      )}
+      className={cn("inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold tracking-wide", className)}
+      style={styles[variant]}
     >
       {children}
     </span>
   );
 }
 
-/**
- * Helper to get badge variant based on booking/payment status
- */
-export function getStatusVariant(
-  status: string
-): BadgeVariant {
+export function getStatusVariant(status: string): BadgeVariant {
   switch (status) {
-    case "APPROVED":
-    case "VERIFIED":
-    case "ACTIVE":
-      return "success";
-    case "PENDING":
-    case "UNVERIFIED":
-    case "UPCOMING":
-      return "warning";
-    case "REJECTED":
-    case "CANCELLED":
-      return "danger";
-    case "OPEN":
-      return "info";
-    case "CLOSED":
-    case "REDEEMED":
-      return "default";
-    default:
-      return "default";
+    case "APPROVED": case "VERIFIED": case "ACTIVE": return "success";
+    case "PENDING": case "UNVERIFIED": case "UPCOMING": return "warning";
+    case "REJECTED": case "CANCELLED": return "danger";
+    case "OPEN": return "info";
+    case "CLOSED": case "REDEEMED": return "default";
+    default: return "default";
   }
 }
-

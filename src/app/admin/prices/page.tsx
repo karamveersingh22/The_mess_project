@@ -107,45 +107,65 @@ export default function AdminPricesPage() {
   }
 
   if (loading) {
-    return <div className="p-8 text-center text-gray-500">Loading pricing configuration...</div>;
+    return (
+      <div className="p-16 text-center text-sm font-medium" style={{ color: 'var(--text-muted)' }}>
+        Loading pricing configuration...
+      </div>
+    );
   }
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
+    <div className="space-y-6 max-w-4xl mx-auto pb-16">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Weekly Meal Pricing & Minimum Amount</h1>
-        <p className="text-sm text-gray-600">
-          Configure meal prices and the mandatory minimum booking threshold. Existing submitted bookings will retain their original price snapshots.
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">💰</span>
+          <h1 className="text-2xl font-black tracking-tight" style={{ color: 'var(--text-primary)' }}>
+            Meal Rates & Booking Thresholds
+          </h1>
+        </div>
+        <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
+          Configure per-meal prices and minimum required booking amounts. Existing bookings keep their original snapshot.
         </p>
       </div>
 
       {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-sm text-red-700 border border-red-200">
-          {error}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--danger-bg)', border: '1px solid var(--danger-border)', color: 'var(--danger-text)' }}
+        >
+          ✕ {error}
         </div>
       )}
 
       {success && (
-        <div className="rounded-lg bg-green-50 p-4 text-sm text-green-700 border border-green-200">
-          {success}
+        <div
+          className="p-4 rounded-xl text-xs font-bold"
+          style={{ background: 'var(--success-bg)', border: '1px solid var(--success-border)', color: 'var(--success-text)' }}
+        >
+          ✓ {success}
         </div>
       )}
 
       {weeks.length === 0 ? (
         <Card>
-          <CardContent className="p-8 text-center text-gray-500">
-            Please create a weekly booking cycle first in the Weekly Cycles page.
+          <CardContent className="p-16 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
+            Please create an operating cycle first in the Weekly Cycles page.
           </CardContent>
         </Card>
       ) : (
         <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <CardTitle>Select Week to Configure</CardTitle>
+              <CardTitle>Configure Cycle Prices</CardTitle>
               <select
                 value={selectedWeekId}
                 onChange={(e) => setSelectedWeekId(e.target.value)}
-                className="rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-blue-500 focus:outline-none"
+                className="rounded-lg px-3 py-1.5 text-xs font-bold transition-colors outline-none cursor-pointer"
+                style={{
+                  background: 'var(--bg-elevated)',
+                  color: 'var(--text-primary)',
+                  border: '1px solid var(--border-default)'
+                }}
               >
                 {weeks.map((w) => (
                   <option key={w._id} value={w._id}>
@@ -159,7 +179,7 @@ export default function AdminPricesPage() {
             <form onSubmit={handleSavePrices} className="space-y-6">
               <div className="grid gap-6 sm:grid-cols-3">
                 <Input
-                  label="Breakfast Price (₹)"
+                  label="Breakfast Rate (₹)"
                   type="number"
                   min="0"
                   step="1"
@@ -168,7 +188,7 @@ export default function AdminPricesPage() {
                   required
                 />
                 <Input
-                  label="Lunch Price (₹)"
+                  label="Lunch Rate (₹)"
                   type="number"
                   min="0"
                   step="1"
@@ -177,7 +197,7 @@ export default function AdminPricesPage() {
                   required
                 />
                 <Input
-                  label="Dinner Price (₹)"
+                  label="Dinner Rate (₹)"
                   type="number"
                   min="0"
                   step="1"
@@ -187,9 +207,12 @@ export default function AdminPricesPage() {
                 />
               </div>
 
-              <div className="rounded-xl bg-blue-50 p-4 border border-blue-200">
+              <div
+                className="rounded-2xl p-5"
+                style={{ background: 'var(--bg-elevated)', border: '1px solid var(--border-brand)' }}
+              >
                 <Input
-                  label="Minimum Booking Amount (₹)"
+                  label="Minimum Booking Threshold (₹)"
                   type="number"
                   min="0"
                   step="1"
@@ -197,22 +220,22 @@ export default function AdminPricesPage() {
                   onChange={(e) => setMinimumBookingAmount(Number(e.target.value))}
                   required
                 />
-                <p className="mt-2 text-xs text-blue-700">
-                  Standard rule: Students must select meals totaling at least this amount per weekly cycle (default ₹300).
+                <p className="mt-2 text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>
+                  Policy requirement: Students must reserve meals summing to at least this amount per cycle (default ₹300).
                 </p>
               </div>
 
-              <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center justify-between pt-4 border-t" style={{ borderColor: 'var(--border-muted)' }}>
                 <Button
                   type="button"
                   variant="secondary"
                   size="sm"
                   onClick={handleResetDefaults}
                 >
-                  Reset to Standard Defaults
+                  Reset Defaults
                 </Button>
-                <Button type="submit" isLoading={saving}>
-                  Save Pricing Configuration
+                <Button type="submit" isLoading={saving} className="font-bold">
+                  Save Changes
                 </Button>
               </div>
             </form>
@@ -222,4 +245,3 @@ export default function AdminPricesPage() {
     </div>
   );
 }
-
