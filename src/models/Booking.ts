@@ -87,7 +87,6 @@ BookingSchema.index(
 );
 BookingSchema.index({ status: 1 });
 BookingSchema.index({ weekId: 1 });
-BookingSchema.index({ bookingCode: 1 });
 
 const Booking: Model<IBooking> =
   mongoose.models.Booking ||
